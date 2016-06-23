@@ -245,26 +245,26 @@ module chacha20_poly1305(
   //----------------------------------------------------------------
   // core instantiation.
   //----------------------------------------------------------------
-  chacha_core core (
-                    .clk(clk),
-                    .reset_n(reset_n),
+  chacha_core core(
+                   .clk(clk),
+                   .reset_n(reset_n),
 
-                    .init(core_init),
-                    .next(core_next),
+                   .init(core_init),
+                   .next(core_next),
 
-                    .key(core_key),
-                    .keylen(core_keylen),
-                    .iv(core_iv),
-                    .ctr(DEFAULT_CTR_INIT),
-                    .rounds(core_rounds),
+                   .key(core_key),
+                   .keylen(core_keylen),
+                   .iv(core_iv),
+                   .ctr(DEFAULT_CTR_INIT),
+                   .rounds(core_rounds),
 
-                    .data_in(core_data_in),
+                   .data_in(core_data_in),
 
-                    .ready(core_ready),
+                   .ready(core_ready),
 
-                    .data_out(core_data_out),
-                    .data_out_valid(core_data_out_valid)
-                   );
+                   .data_out(core_data_out),
+                   .data_out_valid(core_data_out_valid)
+                  );
 
 
   //----------------------------------------------------------------
@@ -576,7 +576,6 @@ module chacha20_poly1305(
 
                 default:
                   begin
-                    tmp_error = 1;
                   end
               endcase // case (address)
             end // if (we)
