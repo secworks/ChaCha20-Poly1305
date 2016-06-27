@@ -61,8 +61,8 @@ module chacha20_poly1305_core(
   //----------------------------------------------------------------
   // Concurrent connectivity for ports etc.
   //----------------------------------------------------------------
-  assign core_init    = init_reg;
-  assign core_next    = next_reg;
+  assign core_init    = 1'h0;
+  assign core_next    = 128'h0;
 
 
   //----------------------------------------------------------------
