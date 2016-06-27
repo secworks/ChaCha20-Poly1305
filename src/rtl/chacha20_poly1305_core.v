@@ -36,8 +36,12 @@
 //======================================================================
 
 module chacha20_poly1305_core(
-                              input wire           clk,
-                              input wire           reset_n,
+                              input wire            clk,
+                              input wire            reset_n,
+
+                              input wire            init,
+                              input wire            next,
+                              output wire           ready,
 
                               output wire           tag_corect,
                               output wire [127 : 0] p1305_tag
@@ -46,11 +50,16 @@ module chacha20_poly1305_core(
   //----------------------------------------------------------------
   // Internal constant and parameter definitions.
   //----------------------------------------------------------------
+  localparam CTRL_IDLE = 3'h0;
+  localparam CTRL_INIT = 3'h1;
 
 
   //----------------------------------------------------------------
   // Registers including update variables and write enable.
   //----------------------------------------------------------------
+  reg [2 : 0] core_ctrl_reg;
+  reg [2 : 0] core_ctrl_new;
+  reg         core_ctrl_we;
 
 
   //----------------------------------------------------------------
@@ -61,8 +70,9 @@ module chacha20_poly1305_core(
   //----------------------------------------------------------------
   // Concurrent connectivity for ports etc.
   //----------------------------------------------------------------
-  assign core_init    = 1'h0;
+  assign core_init    = 0;
   assign core_next    = 128'h0;
+  assign ready        = 1;
 
 
   //----------------------------------------------------------------
@@ -81,11 +91,47 @@ module chacha20_poly1305_core(
     begin
       if (!reset_n)
         begin
+          core_ctrl_reg <= CTRL_IDLE;
         end
       else
         begin
+          if (core_ctrl_we)
+            core_ctrl_reg <= core_ctrl_new;
         end
     end // reg_update
+
+
+  //----------------------------------------------------------------
+  // core_ctrl
+  //
+  // Main control FSM.
+  //----------------------------------------------------------------
+  always @*
+    begin : core_ctrl
+      core_ctrl = CTRL_IDLE;
+      core_ctrl = 0;
+
+      case (core_ctrl_reg)
+        CTRL_IDLE:
+          begin
+            if (init)
+              begin
+                core_ctrl = CTRL_INIT;
+                core_ctrl = 1;
+              end
+          end
+
+        CTRL_INIT:
+          begin
+            core_ctrl = CTRL_IDLE;
+            core_ctrl = 1;
+          end
+
+        default:
+          begin
+          end
+      endcase // case (core_ctrl_reg)
+    end // core_ctrl
 
 endmodule // chacha_poly1305_core
 
