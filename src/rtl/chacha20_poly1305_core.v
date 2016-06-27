@@ -53,6 +53,7 @@ module chacha20_poly1305_core(
   localparam CTRL_IDLE = 3'h0;
   localparam CTRL_INIT = 3'h1;
 
+  localparam DEFAULT_CTR_INIT = 64'h00;
 
   //----------------------------------------------------------------
   // Registers including update variables and write enable.
@@ -78,6 +79,26 @@ module chacha20_poly1305_core(
   //----------------------------------------------------------------
   // core instantiation.
   //----------------------------------------------------------------
+  chacha_core core(
+                   .clk(clk),
+                   .reset_n(reset_n),
+
+                   .init(core_init),
+                   .next(core_next),
+
+                   .key(core_key),
+                   .keylen(core_keylen),
+                   .iv(core_iv),
+                   .ctr(DEFAULT_CTR_INIT),
+                   .rounds(core_rounds),
+
+                   .data_in(core_data_in),
+
+                   .ready(core_ready),
+
+                   .data_out(core_data_out),
+                   .data_out_valid(core_data_out_valid)
+                  );
 
 
   //----------------------------------------------------------------
