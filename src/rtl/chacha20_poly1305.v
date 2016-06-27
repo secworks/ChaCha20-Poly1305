@@ -72,7 +72,9 @@ module chacha20_poly1305(
   localparam ADDR_KEY7              = 8'h17;
 
   localparam ADDR_IV0               = 8'h20;
-  localparam ADDR_IV1               = 8'h21;
+  localparam ADDR_IV2               = 8'h21;
+
+  localparam ADDR_INIT_CTR          = 8'h30;
 
   localparam ADDR_DATA_IN0          = 8'h40;
   localparam ADDR_DATA_IN15         = 8'h4f;
@@ -83,9 +85,9 @@ module chacha20_poly1305(
   localparam ADDR_TAG_OUT0          = 8'h50;
   localparam ADDR_TAG_OUT3          = 8'h53;
 
-  localparam CORE_NAME0     = 32'h73686132; // "sha2"
-  localparam CORE_NAME1     = 32'h2d323536; // "-256"
-  localparam CORE_VERSION   = 32'h312e3830; // "1.80"
+  localparam CORE_NAME0     = 32'h63323070; // "c20p"
+  localparam CORE_NAME1     = 32'h31333035; // "1305"
+  localparam CORE_VERSION   = 32'h302e3031; // "1.01"
 
 
   //----------------------------------------------------------------
