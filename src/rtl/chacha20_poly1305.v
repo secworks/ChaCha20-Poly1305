@@ -64,7 +64,7 @@ module chacha20_poly1305(
   localparam STATUS_TAG_OK_BIT      = 2;
 
   localparam ADDR_CONFIG            = 8'h0a;
-  localparam CONFIG_KEYLEN_BIT      = 0;
+  localparam CONFIG_ENCDEC_BIT      = 0;
   localparam CONFIG_ROUNDS_LOW_BIT  = 4;
   localparam CONFIG_ROUNDS_HIGH_BIT = 8;
 
@@ -103,6 +103,18 @@ module chacha20_poly1305(
 
   reg keylen_reg;
   reg keylen_we;
+
+  reg [31 : 0] key_reg [0 : 7];
+  reg          key_we;
+
+  reg [31 : 0] iv_reg [0 : 1];
+  reg          iv_we;
+
+  reg [31 : 0] init_ctr_reg;
+  reg          init_ctr_we;
+
+  reg [31 : 0] data_in_reg [0 : 15];
+  reg          data_in_we;
 
   reg [4 : 0] rounds_reg;
   reg         rounds_we;
