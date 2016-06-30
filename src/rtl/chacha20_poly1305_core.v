@@ -43,7 +43,7 @@ module chacha20_poly1305_core(
                               input wire            next,
                               input wire            done,
                               input wire            encdec,
-                              input wire [031 : 0]  init_ctr,
+                              input wire [063 : 0]  init_ctr,
                               input wire [255 : 0]  key,
                               input wire [095 : 0]  iv,
                               input wire [511 : 0]  data_in,
@@ -74,14 +74,26 @@ module chacha20_poly1305_core(
   //----------------------------------------------------------------
   // Wires.
   //----------------------------------------------------------------
+  reg tmp_ready;
+  reg tmp_valid;
+
+  reg          core_init;
+  reg          core_next;
+  wire         core_ready;
+  wire         core_data_valid;
+  wire         core_keylen;
+  wire [4 : 0] core_rounds;
+  reg [63 : 0] core_init_ctr;
 
 
   //----------------------------------------------------------------
   // Concurrent connectivity for ports etc.
   //----------------------------------------------------------------
-  assign core_init    = 0;
-  assign core_next    = 128'h0;
-  assign ready        = 1;
+  assign ready = tmp_ready;
+  assign valid = tmp_valid;
+
+  assign core_keylen = 1;
+  assign core_rounds = 5'h14;
 
 
   //----------------------------------------------------------------
@@ -93,19 +105,16 @@ module chacha20_poly1305_core(
 
                    .init(core_init),
                    .next(core_next),
-
-                   .key(core_key),
+                   .key(key),
                    .keylen(core_keylen),
-                   .iv(core_iv),
-                   .ctr(DEFAULT_CTR_INIT),
+                   .iv(iv),
+                   .ctr(core_init_ctr),
                    .rounds(core_rounds),
-
-                   .data_in(core_data_in),
+                   .data_in(data_in),
 
                    .ready(core_ready),
-
-                   .data_out(core_data_out),
-                   .data_out_valid(core_data_out_valid)
+                   .data_out(data_out),
+                   .data_out_valid(core_data_valid)
                   );
 
 
@@ -137,23 +146,28 @@ module chacha20_poly1305_core(
   //----------------------------------------------------------------
   always @*
     begin : core_ctrl
-      core_ctrl = CTRL_IDLE;
-      core_ctrl = 0;
+      tmp_ready    = 0;
+      tmp_valid    = 0;
+      core_init    = 0;
+      core_next    = 0;
+      core_init_ctr = 32'h0;
+      core_ctrl_new = CTRL_IDLE;
+      core_ctrl_we  = 0;
 
       case (core_ctrl_reg)
         CTRL_IDLE:
           begin
             if (init)
               begin
-                core_ctrl = CTRL_INIT;
-                core_ctrl = 1;
+                core_ctrl_new = CTRL_INIT;
+                core_ctrl_we  = 1;
               end
           end
 
         CTRL_INIT:
           begin
-            core_ctrl = CTRL_IDLE;
-            core_ctrl = 1;
+            core_ctrl_new = CTRL_IDLE;
+            core_ctrl_we  = 1;
           end
 
         default:
