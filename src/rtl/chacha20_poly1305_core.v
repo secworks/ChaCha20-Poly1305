@@ -41,10 +41,18 @@ module chacha20_poly1305_core(
 
                               input wire            init,
                               input wire            next,
-                              output wire           ready,
+                              input wire            done,
+                              input wire            encdec,
+                              input wire [031 : 0]  init_ctr,
+                              input wire [255 : 0]  key,
+                              input wire [095 : 0]  iv,
+                              input wire [511 : 0]  data_in,
 
-                              output wire           tag_corect,
-                              output wire [127 : 0] p1305_tag
+                              output wire           ready,
+                              output wire           valid,
+                              output wire           tag_ok,
+                              output wire [511 : 0] data_out,
+                              output wire [127 : 0] tag
                              );
 
   //----------------------------------------------------------------

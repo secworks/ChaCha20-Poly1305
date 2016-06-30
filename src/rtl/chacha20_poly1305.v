@@ -134,21 +134,21 @@ module chacha20_poly1305(
                    .clk(clk),
                    .reset_n(reset_n),
 
-                   .init(core_init),
-                   .next(core_next),
+                   .init(init_reg),
+                   .next(next_reg),
+                   .done(next_reg),
 
+                   .encdec(encdec_reg),
+                   .init_ctr(init_ctr_reg),
                    .key(core_key),
-                   .keylen(core_keylen),
                    .iv(core_iv),
-                   .ctr(DEFAULT_CTR_INIT),
-                   .rounds(core_rounds),
-
                    .data_in(core_data_in),
 
                    .ready(core_ready),
-
+                   .valid(core_valid),
+                   .tag_ok(core_tag_ok),
                    .data_out(core_data_out),
-                   .data_out_valid(core_data_out_valid)
+                   .tag(core_tag)
                   );
 
 
@@ -174,7 +174,7 @@ module chacha20_poly1305(
           iv_reg[1]    <= 32'h0;
           iv_reg[2]    <= 32'h0;
 
-          for (i = 0 ; i < 8 ; i + i + 1)
+          for (i = 0 ; i < 8 ; i = i + 1)
             begin
               key_reg[i] <= 32'h0;
               data_reg[i] <= 32'h0;
