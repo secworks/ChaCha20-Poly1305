@@ -37,8 +37,10 @@
 #===================================================================
 
 CHACHA_CORE_SRC=../../chacha/src/rtl/chacha_core.v ../../chacha/src/rtl/chacha_qr.v
+CORE_SRC=../src/rtl/chacha20_poly1305_core.v $(CHACHA_CORE_SRC)
+TOP_SRC=../src/rtl/chacha20_poly1305.v $(CORE_SRC)
 
-TOP_SRC=../src/rtl/chacha20_poly1305.v $(CHACHA_CORE_SRC)
+CORE_TB_SRC=../src/tb/tb_chacha20_poly1305_core.v
 TOP_TB_SRC=../src/tb/tb_chacha20_poly1305.v
 
 CC=iverilog
@@ -55,7 +57,7 @@ top.sim: $(TOP_TB_SRC) $(TOP_SRC)
 
 
 core.sim: $(CORE_TB_SRC) $(CORE_SRC)
-	$(CC) -o core.sim $(CORE_SRC) $(CORE_TB_SRC)
+	$(CC) -o core.sim $(CORE_TB_SRC) $(CORE_SRC)
 
 
 sim-core: core.sim
