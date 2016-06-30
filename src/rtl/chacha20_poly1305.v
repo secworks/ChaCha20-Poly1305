@@ -65,29 +65,24 @@ module chacha20_poly1305(
 
   localparam ADDR_CONFIG            = 8'h0a;
   localparam CONFIG_ENCDEC_BIT      = 0;
-  localparam CONFIG_ROUNDS_LOW_BIT  = 4;
-  localparam CONFIG_ROUNDS_HIGH_BIT = 8;
+
+  localparam ADDR_INIT_CTR          = 8'h0c;
 
   localparam ADDR_KEY0              = 8'h10;
   localparam ADDR_KEY7              = 8'h17;
 
   localparam ADDR_IV0               = 8'h20;
-  localparam ADDR_IV2               = 8'h21;
+  localparam ADDR_IV2               = 8'h22;
 
-  localparam ADDR_INIT_CTR          = 8'h30;
+  localparam ADDR_DATA0             = 8'h40;
+  localparam ADDR_DATA15            = 8'h4f;
 
-  localparam ADDR_DATA_IN0          = 8'h40;
-  localparam ADDR_DATA_IN15         = 8'h4f;
+  localparam ADDR_TAG0              = 8'h50;
+  localparam ADDR_TAG3              = 8'h53;
 
-  localparam ADDR_DATA_OUT0         = 8'h50;
-  localparam ADDR_DATA_OUT15        = 8'h5f;
-
-  localparam ADDR_TAG_OUT0          = 8'h50;
-  localparam ADDR_TAG_OUT3          = 8'h53;
-
-  localparam CORE_NAME0     = 32'h63323070; // "c20p"
-  localparam CORE_NAME1     = 32'h31333035; // "1305"
-  localparam CORE_VERSION   = 32'h302e3031; // "1.01"
+  localparam CORE_NAME0             = 32'h63323070; // "c20p"
+  localparam CORE_NAME1             = 32'h31333035; // "1305"
+  localparam CORE_VERSION           = 32'h302e3031; // "1.01"
 
 
   //----------------------------------------------------------------
@@ -101,20 +96,21 @@ module chacha20_poly1305(
   reg valid_reg;
   reg tag_ok_reg;
 
-  reg keylen_reg;
-  reg keylen_we;
-
-  reg [31 : 0] key_reg [0 : 7];
-  reg          key_we;
-
-  reg [31 : 0] iv_reg [0 : 1];
-  reg          iv_we;
+  reg encdec_reg;
+  reg encdec_new;
+  reg encdec_we;
 
   reg [31 : 0] init_ctr_reg;
   reg          init_ctr_we;
 
-  reg [31 : 0] data_in_reg [0 : 15];
-  reg          data_in_we;
+  reg [31 : 0] key_reg [0 : 7];
+  reg          key_we;
+
+  reg [31 : 0] iv_reg [0 : 2];
+  reg          iv_we;
+
+  reg [31 : 0] data_reg [0 : 15];
+  reg          data_we;
 
   reg [4 : 0] rounds_reg;
   reg         rounds_we;
@@ -160,18 +156,51 @@ module chacha20_poly1305(
   // reg_update
   //
   // Update functionality for all registers in the core.
-  // All registers are positive edge triggered with asynchronous
-  // active low reset. All registers have write enable.
+  // All registers are positive edge triggered with synchronous
+  // active low reset.
   //----------------------------------------------------------------
-  always @ (posedge clk or negedge reset_n)
-    begin
+  always @ (posedge clk)
+    begin : reg_update
+      integer i;
+
       if (!reset_n)
         begin
+          init_reg     <= 0;
+          next_reg     <= 0;
+          done_reg     <= 0;
+          encdec_reg   <= 0;
+          init_ctr_reg <= 32'h0;
+          iv_reg[0]    <= 32'h0;
+          iv_reg[1]    <= 32'h0;
+          iv_reg[2]    <= 32'h0;
 
+          for (i = 0 ; i < 8 ; i + i + 1)
+            begin
+              key_reg[i] <= 32'h0;
+              data_reg[i] <= 32'h0;
+              data_reg[(i + 8)] <= 32'h0;
+            end
         end
       else
         begin
+          init_reg <= init_new;
+          next_reg <= next_new;
+          done_reg <= done_new;
 
+          if (encdec_we)
+            encdec_reg <= write_data[0];
+
+          if (init_ctr_we)
+            init_ctr_reg <= write_data;
+
+          if (key_we)
+            key_reg[address[2 : 0]] <= write_data;
+
+          if (iv_we)
+            iv_reg[address[1 : 0]] <= write_data;
+
+          if (data_we)
+            data_reg[address[3 : 0]] <= write_data;
         end
     end // reg_update
 
@@ -181,9 +210,14 @@ module chacha20_poly1305(
   //----------------------------------------------------------------
   always @*
     begin : addr_decoder
-      init_new = 0;
-      next_new = 0;
-      done_new = 0;
+      init_new    = 0;
+      next_new    = 0;
+      done_new    = 0;
+      encdec_we   = 0;
+      init_ctr_we = 0;
+      key_we      = 0;
+      iv_we       = 0;
+      data_we     = 0;
 
       tmp_read_data = 32'h0;
 
@@ -191,43 +225,67 @@ module chacha20_poly1305(
         begin
           if (we)
             begin
-              case (address)
-                ADDR_CTRL:
-                  begin
-                    init_new = write_data[CTRL_INIT_BIT];
-                    next_new = write_data[CTRL_NEXT_BIT];
-                    done_new = write_data[CTRL_DONE_BIT];
-                  end
+              if (address == ADDR_CTRL)
+                begin
+                  init_new = write_data[CTRL_INIT_BIT];
+                  next_new = write_data[CTRL_NEXT_BIT];
+                  done_new = write_data[CTRL_DONE_BIT];
+                end
 
-                default:
-                  begin
-                  end
-              endcase
+              if (address == ADDR_CONFIG)
+                begin
+                  encdec_we = 1;
+                end
+
+              if (address == ADDR_INIT_CTR)
+                init_ctr_we = 1;
+
+              if ((address >= ADDR_KEY0) && (address <= ADDR_KEY7))
+                key_we = 1;
+
+              if ((address >= ADDR_IV0) && (address <= ADDR_IV2))
+                iv_we = 1;
+
+              if ((address >= ADDR_DATA0) && (address <= ADDR_DATA15))
+                data_we = 1;
             end
 
           else
             begin
-              case (address)
-                ADDR_NAME0:
-                  tmp_read_data = CORE_NAME0;
-                ADDR_NAME1:
-                  tmp_read_data = CORE_NAME1;
-                ADDR_VERSION:
-                  tmp_read_data = CORE_VERSION;
+              if (address == ADDR_NAME0)
+                tmp_read_data = CORE_NAME0;
 
-                ADDR_CTRL:
-                  tmp_read_data = {29'h0, done_reg, next_reg, init_reg};
+              if (address == ADDR_NAME1)
+                tmp_read_data = CORE_NAME1;
 
-                ADDR_STATUS:
-                  tmp_read_data = {29'h0, tag_ok_reg, data_out_valid_reg, ready_reg};
+              if (address == ADDR_VERSION)
+                tmp_read_data = CORE_VERSION;
 
-                ADDR_CONFIG:
-                  tmp_read_data = {24'h0, rounds_reg, 3'h0, keylen_reg};
+              if (address == ADDR_CTRL)
+                tmp_read_data = {29'h0, done_reg, next_reg, init_reg};
 
-                default:
-                  begin
-                  end
-              endcase // case (address)
+              if (address == ADDR_STATUS)
+                tmp_read_data = {29'h0, tag_ok_reg, data_out_valid_reg, ready_reg};
+
+              if (address == ADDR_CONFIG)
+                tmp_read_data = {31'h0, encdec_reg};
+
+              if (address == ADDR_INIT_CTR)
+                tmp_read_data = init_ctr_reg;
+
+              if ((address >= ADDR_KEY0) && (address <= ADDR_KEY7))
+                tmp_read_data = key_reg[address[2 : 0]];
+
+              if ((address >= ADDR_IV0) && (address <= ADDR_IV2))
+                tmp_read_data = iv_reg[address[2 : 0]];
+
+              if ((address >= ADDR_DATA0) && (address <= ADDR_DATA15))
+                // TODO: Add slicing.
+                tmp_read_data = 32'hf;
+
+              if ((address >= TAG00) && (address <= ADDR_TAG3))
+                // TODO: Add slicing.
+                tmp_read_data = 32'ha;
             end
         end
     end // addr_decoder
