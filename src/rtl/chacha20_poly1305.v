@@ -92,12 +92,7 @@ module chacha20_poly1305(
   reg next_reg;
   reg done_reg;
 
-  reg ready_reg;
-  reg valid_reg;
-  reg tag_ok_reg;
-
   reg encdec_reg;
-  reg encdec_new;
   reg encdec_we;
 
   reg [31 : 0] init_ctr_reg;
@@ -121,35 +116,53 @@ module chacha20_poly1305(
   //----------------------------------------------------------------
   reg [31 : 0]   tmp_read_data;
 
+  wire           core_ready;
+  wire           core_valid;
+  wire           core_tag_ok;
+  wire [255 : 0] core_key;
+  wire [095 : 0] core_iv;
+  wire [511 : 0] core_data_in;
+  wire [511 : 0] core_data_out;
+  wire [127 : 0] core_tag;
+
 
   //----------------------------------------------------------------
   // Concurrent connectivity for ports etc.
   //----------------------------------------------------------------
+  assign core_key = {key_reg[0], key_reg[1], key_reg[2], key_reg[3],
+                     key_reg[4], key_reg[5], key_reg[6], key_reg[7]};
+
+  assign core_iv = {iv_reg[0], iv_reg[1], iv_reg[2]};
+
+  assign core_data_in = {data_reg[00], data_reg[01], data_reg[02], data_reg[03],
+                         data_reg[04], data_reg[05], data_reg[06], data_reg[07],
+                         data_reg[08], data_reg[09], data_reg[10], data_reg[11],
+                         data_reg[12], data_reg[13], data_reg[14], data_reg[15]};
 
 
   //----------------------------------------------------------------
   // core instantiation.
   //----------------------------------------------------------------
-  chacha_core core(
-                   .clk(clk),
-                   .reset_n(reset_n),
+  chacha20_poly1305_core core(
+                              .clk(clk),
+                              .reset_n(reset_n),
 
-                   .init(init_reg),
-                   .next(next_reg),
-                   .done(next_reg),
+                              .init(init_reg),
+                              .next(next_reg),
+                              .done(done_reg),
 
-                   .encdec(encdec_reg),
-                   .init_ctr(init_ctr_reg),
-                   .key(core_key),
-                   .iv(core_iv),
-                   .data_in(core_data_in),
+                              .encdec(encdec_reg),
+                              .init_ctr(init_ctr_reg),
+                              .key(core_key),
+                              .iv(core_iv),
+                              .data_in(core_data_in),
 
-                   .ready(core_ready),
-                   .valid(core_valid),
-                   .tag_ok(core_tag_ok),
-                   .data_out(core_data_out),
-                   .tag(core_tag)
-                  );
+                              .ready(core_ready),
+                              .valid(core_valid),
+                              .tag_ok(core_tag_ok),
+                              .data_out(core_data_out),
+                              .tag(core_tag)
+                             );
 
 
   //----------------------------------------------------------------
