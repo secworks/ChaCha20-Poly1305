@@ -1,8 +1,8 @@
 //======================================================================
 //
-// chacha_poly1305_core.v
-// ----------------------
-// Main core module for ChaCha20-Poly1305 AEAD cipher core.
+// chacha_poly1305_p1305.v
+// -----------------------
+// Poly 1305 module for the ChaCha20-Poly1305 AEAD cipher core.
 //
 //
 // Copyright (c) 2016, Secworks Sweden AB
@@ -35,34 +35,21 @@
 //
 //======================================================================
 
-module chacha20_poly1305_core(
-                              input wire            clk,
-                              input wire            reset_n,
+module chacha20_poly1305_p1305(
+                               input wire            clk,
+                               input wire            reset_n,
 
-                              input wire            init,
-                              input wire            next,
-                              input wire            done,
-                              input wire            encdec,
-                              input wire [063 : 0]  init_ctr,
-                              input wire [255 : 0]  key,
-                              input wire [095 : 0]  iv,
-                              input wire [511 : 0]  data_in,
+                               input wire            init,
+                               input wire            next,
+                               input wire            done,
+                               input wire [255 : 0]  key,
 
-                              output wire           ready,
-                              output wire           valid,
-                              output wire           tag_ok,
-                              output wire [511 : 0] data_out,
-                              output wire [127 : 0] tag
+                               output wire [127 : 0] tag
                              );
 
   //----------------------------------------------------------------
   // Internal constant and parameter definitions.
   //----------------------------------------------------------------
-  localparam CTRL_IDLE = 3'h0;
-  localparam CTRL_INIT = 3'h1;
-
-  localparam DEFAULT_CTR_INIT = 64'h00;
-
   localparam R_CLAMP  = 128'h0ffffffc0ffffffc0ffffffc0fffffff;
   localparam POLY1305 = 129'h3fffffffffffffffffffffffffffffffb;
 
@@ -82,61 +69,24 @@ module chacha20_poly1305_core(
   reg [255 : 0] acc_new;
   reg           acc_we;
 
-  reg [2 : 0] core_ctrl_reg;
-  reg [2 : 0] core_ctrl_new;
-  reg         core_ctrl_we;
+  reg [2 : 0] p1305_ctrl_reg;
+  reg [2 : 0] p1305_ctrl_new;
+  reg         p1305_ctrl_we;
 
 
   //----------------------------------------------------------------
   // Wires.
   //----------------------------------------------------------------
-  reg tmp_ready;
-  reg tmp_valid;
-
-  reg          core_init;
-  reg          core_next;
-  wire         core_ready;
-  wire         core_data_valid;
-  wire         core_keylen;
-  wire [4 : 0] core_rounds;
-  reg [63 : 0] core_init_ctr;
-
-  reg poly1305_keygen;
-  reg poly1305_init;
-  reg poly1305_next;
 
 
   //----------------------------------------------------------------
   // Concurrent connectivity for ports etc.
   //----------------------------------------------------------------
-  assign ready = tmp_ready;
-  assign valid = tmp_valid;
-
-  // Always 256 bit keys and 20 rounds.
-  assign core_keylen = 1;
-  assign core_rounds = 5'h14;
 
 
   //----------------------------------------------------------------
   // core instantiation.
   //----------------------------------------------------------------
-  chacha_core core(
-                   .clk(clk),
-                   .reset_n(reset_n),
-
-                   .init(core_init),
-                   .next(core_next),
-                   .key(key),
-                   .keylen(core_keylen),
-                   .iv(iv),
-                   .ctr(core_init_ctr),
-                   .rounds(core_rounds),
-                   .data_in(data_in),
-
-                   .ready(core_ready),
-                   .data_out(data_out),
-                   .data_out_valid(core_data_valid)
-                  );
 
 
   //----------------------------------------------------------------
@@ -150,10 +100,10 @@ module chacha20_poly1305_core(
     begin
       if (!reset_n)
         begin
-          r_reg         <= 128'h0;
-          s_reg         <= 128'h0;
-          acc_reg       <= 256'h0;
-          core_ctrl_reg <= CTRL_IDLE;
+          r_reg          <= 128'h0;
+          s_reg          <= 128'h0;
+          acc_reg        <= 256'h0;
+          p1305_ctrl_reg <= CTRL_IDLE;
         end
       else
         begin
@@ -166,30 +116,11 @@ module chacha20_poly1305_core(
           if (acc_we)
             acc_reg <= acc_new;
 
-          if (core_ctrl_we)
-            core_ctrl_reg <= core_ctrl_new;
+          if (p1305_ctrl_we)
+            p1305_ctrl_reg <= p1305_ctrl_new;
         end
     end // reg_update
 
-
-  //----------------------------------------------------------------
-  // chacha_mux
-  //
-  // Since we use the chacha core both to encrypt/decrypt
-  // and generate the poly1305 key we need to have a mux
-  // in front of the core.
-  //----------------------------------------------------------------
-  always @*
-    begin : chacha_mux
-      if (poly1305_keygen)
-        begin
-
-        end
-      else
-        begin
-
-        end
-    end
 
   //----------------------------------------------------------------
   // poly1305_dp
@@ -231,49 +162,28 @@ module chacha20_poly1305_core(
 
 
   //----------------------------------------------------------------
-  // core_ctrl
+  // p1305_ctrl
   //
   // Main control FSM.
   //----------------------------------------------------------------
   always @*
-    begin : core_ctrl
-      tmp_ready    = 0;
-      tmp_valid    = 0;
-      core_init    = 0;
-      core_next    = 0;
+    begin : p1305_ctrl
+      p1305_ctrl_new = CTRL_IDLE;
+      p1305_ctrl_we  = 0;
 
-      poly1305_keygen = 0;
-      poly1305_init   = 0;
-      poly1305_next   = 0;
-
-      core_init_ctr = 32'h0;
-      core_ctrl_new = CTRL_IDLE;
-      core_ctrl_we  = 0;
-
-      case (core_ctrl_reg)
+      case (p1305_ctrl_reg)
         CTRL_IDLE:
           begin
-            if (init)
-              begin
-                core_ctrl_new = CTRL_INIT;
-                core_ctrl_we  = 1;
-              end
-          end
-
-        CTRL_INIT:
-          begin
-            core_ctrl_new = CTRL_IDLE;
-            core_ctrl_we  = 1;
           end
 
         default:
           begin
           end
-      endcase // case (core_ctrl_reg)
-    end // core_ctrl
+      endcase // case (p1305_ctrl_reg)
+    end // p1305_ctrl
 
-endmodule // chacha_poly1305_core
+endmodule // chacha_poly1305_p1305
 
 //======================================================================
-// EOF chacha_poly1305_core.v
+// EOF chacha_poly1305_p1305.v
 //======================================================================
