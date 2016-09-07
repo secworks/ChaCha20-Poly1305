@@ -43,9 +43,8 @@ module chacha20_poly1305_core(
                               input wire            next,
                               input wire            done,
                               input wire            encdec,
-                              input wire [063 : 0]  init_ctr,
                               input wire [255 : 0]  key,
-                              input wire [095 : 0]  iv,
+                              input wire [095 : 0]  nonce,
                               input wire [511 : 0]  data_in,
 
                               output wire           ready,
@@ -64,7 +63,7 @@ module chacha20_poly1305_core(
   localparam DEFAULT_CTR_INIT = 64'h00;
 
   localparam R_CLAMP  = 128'h0ffffffc0ffffffc0ffffffc0fffffff;
-  localparam POLY1305 = 129'h3fffffffffffffffffffffffffffffffb;
+  localparam POLY1305 = 130'h3fffffffffffffffffffffffffffffffb;
 
 
   //----------------------------------------------------------------
@@ -99,7 +98,7 @@ module chacha20_poly1305_core(
   wire         core_data_valid;
   wire         core_keylen;
   wire [4 : 0] core_rounds;
-  reg [63 : 0] core_init_ctr;
+  reg [31 : 0] core_init_ctr;
 
   reg poly1305_keygen;
   reg poly1305_init;
@@ -128,8 +127,8 @@ module chacha20_poly1305_core(
                    .next(core_next),
                    .key(key),
                    .keylen(core_keylen),
-                   .iv(iv),
-                   .ctr(core_init_ctr),
+                   .iv(nonce[095 : 032]),
+                   .ctr({nonce[31 : 0], core_init_ctr}),
                    .rounds(core_rounds),
                    .data_in(data_in),
 

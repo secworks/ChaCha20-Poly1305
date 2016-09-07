@@ -69,17 +69,14 @@ module chacha20_poly1305(
   localparam ADDR_KEY0              = 8'h10;
   localparam ADDR_KEY7              = 8'h17;
 
-  localparam ADDR_IV0               = 8'h20;
-  localparam ADDR_IV2               = 8'h22;
+  localparam ADDR_NONCE0            = 8'h20;
+  localparam ADDR_NONCE2            = 8'h22;
 
-  localparam ADDR_INIT_CTR0         = 8'h30;
-  localparam ADDR_INIT_CTR1         = 8'h31;
+  localparam ADDR_DATA0             = 8'h30;
+  localparam ADDR_DATA15            = 8'h3f;
 
-  localparam ADDR_DATA0             = 8'h40;
-  localparam ADDR_DATA15            = 8'h4f;
-
-  localparam ADDR_TAG0              = 8'h50;
-  localparam ADDR_TAG3              = 8'h53;
+  localparam ADDR_TAG0              = 8'h40;
+  localparam ADDR_TAG3              = 8'h43;
 
   localparam CORE_NAME0             = 32'h63323070; // "c20p"
   localparam CORE_NAME1             = 32'h31333035; // "1305"
@@ -105,14 +102,14 @@ module chacha20_poly1305(
   reg [31 : 0] key_reg [0 : 7];
   reg          key_we;
 
-  reg [31 : 0] iv_reg [0 : 2];
-  reg          iv_we;
+  reg [31 : 0] nonce_reg [0 : 2];
+  reg          nonce_we;
 
   reg [31 : 0] data_reg [0 : 15];
   reg          data_we;
 
-  reg [4 : 0] rounds_reg;
-  reg         rounds_we;
+  reg [4 : 0]  rounds_reg;
+  reg          rounds_we;
 
 
   //----------------------------------------------------------------
@@ -124,8 +121,7 @@ module chacha20_poly1305(
   wire           core_valid;
   wire           core_tag_ok;
   wire [255 : 0] core_key;
-  wire [095 : 0] core_iv;
-  wire [063 : 0] core_ctr;
+  wire [095 : 0] core_nonce;
   wire [511 : 0] core_data_in;
   wire [511 : 0] core_data_out;
   wire [127 : 0] core_tag;
@@ -137,9 +133,7 @@ module chacha20_poly1305(
   assign core_key = {key_reg[0], key_reg[1], key_reg[2], key_reg[3],
                      key_reg[4], key_reg[5], key_reg[6], key_reg[7]};
 
-  assign core_iv = {iv_reg[0], iv_reg[1], iv_reg[2]};
-
-  assign core_ctr = {init_ctr_reg[0], init_ctr_reg[1]};
+  assign core_nonce = {nonce_reg[0], nonce_reg[1]};
 
   assign core_data_in = {data_reg[00], data_reg[01], data_reg[02], data_reg[03],
                          data_reg[04], data_reg[05], data_reg[06], data_reg[07],
@@ -159,9 +153,8 @@ module chacha20_poly1305(
                               .done(done_reg),
 
                               .encdec(encdec_reg),
-                              .init_ctr(core_ctr),
                               .key(core_key),
-                              .iv(core_iv),
+                              .nonce(core_nonce),
                               .data_in(core_data_in),
 
                               .ready(core_ready),
@@ -191,9 +184,9 @@ module chacha20_poly1305(
           encdec_reg      <= 0;
           init_ctr_reg[0] <= 32'h0;
           init_ctr_reg[1] <= 32'h0;
-          iv_reg[0]       <= 32'h0;
-          iv_reg[1]       <= 32'h0;
-          iv_reg[2]       <= 32'h0;
+          nonce_reg[0]    <= 32'h0;
+          nonce_reg[1]    <= 32'h0;
+          nonce_reg[2]    <= 32'h0;
 
           for (i = 0 ; i < 8 ; i = i + 1)
             begin
@@ -217,8 +210,8 @@ module chacha20_poly1305(
           if (key_we)
             key_reg[address[2 : 0]] <= write_data;
 
-          if (iv_we)
-            iv_reg[address[1 : 0]] <= write_data;
+          if (nonce_we)
+            nonce_reg[address[1 : 0]] <= write_data;
 
           if (data_we)
             data_reg[address[3 : 0]] <= write_data;
@@ -235,9 +228,8 @@ module chacha20_poly1305(
       next_new    = 0;
       done_new    = 0;
       encdec_we   = 0;
-      init_ctr_we = 0;
       key_we      = 0;
-      iv_we       = 0;
+      nonce_we    = 0;
       data_we     = 0;
 
       tmp_read_data = 32'h0;
@@ -261,11 +253,8 @@ module chacha20_poly1305(
               if ((address >= ADDR_KEY0) && (address <= ADDR_KEY7))
                 key_we = 1;
 
-              if ((address >= ADDR_IV0) && (address <= ADDR_IV2))
-                iv_we = 1;
-
-              if ((address >= ADDR_INIT_CTR0) && (address >= ADDR_INIT_CTR1))
-                init_ctr_we = 1;
+              if ((address >= ADDR_NONCE0) && (address <= ADDR_NONCE2))
+                nonce_we = 1;
 
               if ((address >= ADDR_DATA0) && (address <= ADDR_DATA15))
                 data_we = 1;
@@ -288,14 +277,11 @@ module chacha20_poly1305(
               if (address == ADDR_CONFIG)
                 tmp_read_data = {31'h0, encdec_reg};
 
-              if ((address >= ADDR_INIT_CTR0) && (address >= ADDR_INIT_CTR1))
-                tmp_read_data = init_ctr_reg[address[0]];
-
               if ((address >= ADDR_KEY0) && (address <= ADDR_KEY7))
                 tmp_read_data = key_reg[address[2 : 0]];
 
-              if ((address >= ADDR_IV0) && (address <= ADDR_IV2))
-                tmp_read_data = iv_reg[address[2 : 0]];
+              if ((address >= ADDR_NONCE0) && (address <= ADDR_NONCE2))
+                tmp_read_data = nonce_reg[address[2 : 0]];
 
               if ((address >= ADDR_DATA0) && (address <= ADDR_DATA15))
                 // TODO: Add slicing.
