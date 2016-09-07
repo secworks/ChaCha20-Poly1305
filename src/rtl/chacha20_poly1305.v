@@ -224,14 +224,13 @@ module chacha20_poly1305(
   //----------------------------------------------------------------
   always @*
     begin : addr_decoder
-      init_new    = 0;
-      next_new    = 0;
-      done_new    = 0;
-      encdec_we   = 0;
-      key_we      = 0;
-      nonce_we    = 0;
-      data_we     = 0;
-
+      init_new      = 0;
+      next_new      = 0;
+      done_new      = 0;
+      encdec_we     = 0;
+      key_we        = 0;
+      nonce_we      = 0;
+      data_we       = 0;
       tmp_read_data = 32'h0;
 
       if (cs)
@@ -284,12 +283,10 @@ module chacha20_poly1305(
                 tmp_read_data = nonce_reg[address[2 : 0]];
 
               if ((address >= ADDR_DATA0) && (address <= ADDR_DATA15))
-                // TODO: Add slicing.
-                tmp_read_data = 32'hf;
+                tmp_read_data = core_data_out[(15 - (address - ADDR_DATA0)) * 32 +: 32];
 
               if ((address >= ADDR_TAG0) && (address <= ADDR_TAG3))
-                // TODO: Add slicing.
-                tmp_read_data = 32'ha;
+                tmp_read_data = core_tag[(3 - (address - ADDR_TAG0)) * 32 +: 32];
             end
         end
     end // addr_decoder
