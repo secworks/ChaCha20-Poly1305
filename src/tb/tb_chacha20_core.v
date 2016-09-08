@@ -271,6 +271,20 @@ module tb_chacha20_core();
 
 
   //----------------------------------------------------------------
+  // wait_ready
+  //----------------------------------------------------------------
+  task wait_ready;
+    begin
+      while (!tb_core_ready)
+        begin
+          #(1 * CLK_PERIOD);
+        end
+      $display("*** Ready seen.");
+    end
+  endtask // wait_ready
+
+
+  //----------------------------------------------------------------
   // block_test
   //
   // Test that the initialization and block processing in the
@@ -291,11 +305,13 @@ module tb_chacha20_core();
       tb_core_nonce  = 96'h000000090000004a00000000;
       tb_core_ctr    = 32'h00000001;
 
+      $display("*** Starting init of the cipher.");
       tb_core_init   = 1;
-      #(2 * CLK_PERIOD);
+      #(CLK_PERIOD);
       tb_core_init   = 0;
-      #(2 * CLK_PERIOD);
+      #(CLK_PERIOD);
       dump_state();
+      dump_inout();
 
       if (dut.state0_reg != 32'h61707865)
         test_error = 1;
@@ -335,6 +351,9 @@ module tb_chacha20_core();
       else
         $display("*** State after init correct.");
 
+      $display("*** Waiting for end of processing first block.");
+      wait_ready();
+      dump_state();
     end
   endtask // block_test
 
