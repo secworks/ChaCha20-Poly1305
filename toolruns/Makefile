@@ -36,20 +36,21 @@
 #
 #===================================================================
 
-CHACHA_CORE_SRC=../../chacha/src/rtl/chacha_core.v ../../chacha/src/rtl/chacha_qr.v
-CORE_SRC=../src/rtl/chacha20_poly1305_core.v $(CHACHA_CORE_SRC)
-TOP_SRC=../src/rtl/chacha20_poly1305.v $(CORE_SRC)
+CHACHA_CORE_SRC =../../chacha/src/rtl/chacha_core.v ../../chacha/src/rtl/chacha_qr.v
+CORE_SRC =../src/rtl/chacha20_poly1305_core.v $(CHACHA_CORE_SRC)
+TOP_SRC =../src/rtl/chacha20_poly1305.v $(CORE_SRC)
 
-CORE_TB_SRC=../src/tb/tb_chacha20_poly1305_core.v
-TOP_TB_SRC=../src/tb/tb_chacha20_poly1305.v
+CORE_TB_SRC =../src/tb/tb_chacha20_poly1305_core.v
+TOP_TB_SRC =../src/tb/tb_chacha20_poly1305.v
+
+CHACHA_CORE_TB_SRC = ../src/tb/tb_chacha20_core.v
 
 CC=iverilog
-
 LINT=verilator
 LINTFLAGS =  --lint-only  -Wall -Wno-fatal -Wno-DECLFILENAME
 
 
-all: top.sim
+all: top.sim chacha.sim
 
 
 top.sim: $(TOP_TB_SRC) $(TOP_SRC)
@@ -60,33 +61,45 @@ core.sim: $(CORE_TB_SRC) $(CORE_SRC)
 	$(CC) -o core.sim $(CORE_TB_SRC) $(CORE_SRC)
 
 
+chacha.sim: $(CHACHA_CORE_TB_SRC) $(CHACHA_CORE_SRC)
+	$(CC) -o chacha.sim  $(CHACHA_CORE_TB_SRC) $(CHACHA_CORE_SRC)
+
+
 sim-core: core.sim
 	./core.sim
+
 
 
 sim-top: top.sim
 	./top.sim
 
 
+sim-chacha: chacha.sim
+	./chacha.sim
+
+
 lint:  $(TOP_SRC)
 	$(LINT) $(LINTFLAGS) $(TOP_SRC)
 
-
-help:
-	@echo "Supported targets:"
-	@echo "------------------"
-	@echo "all:      Build all simulation targets."
-	@echo "top:      Build the top simulation target."
-	@echo "core:     Build the top simulation target."
-	@echo "sim-top:  Run top level simulation."
-	@echo "sim-core: Run core level simulation."
-	@echo "lint:     Lint the source."
-	@echo "clean:    Remove build targets."
 
 
 clean:
 	rm -f core.sim
 	rm -f top.sim
+	rm -f chacha.sim
+
+
+help:
+	@echo "Supported targets:"
+	@echo "------------------"
+	@echo "all:        Build all simulation targets."
+	@echo "top:        Build the top simulation target."
+	@echo "core:       Build the top simulation target."
+	@echo "sim-top:    Run top level simulation."
+	@echo "sim-core:   Run core level simulation."
+	@echo "sim-chacha: Run core level simulation."
+	@echo "lint:       Lint the source."
+	@echo "clean:      Remove build targets."
 
 #===================================================================
 # EOF Makefile
