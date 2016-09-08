@@ -89,8 +89,8 @@ module tb_chacha20_core();
                   .next(tb_core_next),
                   .key(tb_core_key),
                   .keylen(tb_core_keylen),
-                  .iv(tb_core_nonce[95 : 32]),
-                  .ctr({tb_core_nonce[31 : 0], tb_core_ctr}),
+                  .iv(tb_core_nonce[63 : 0]),
+                  .ctr({tb_core_nonce[95 : 64], tb_core_ctr}),
                   .rounds(tb_core_rounds),
                   .data_in(tb_core_data_in),
                   .ready(tb_core_ready),
@@ -140,6 +140,17 @@ module tb_chacha20_core();
       $display("");
       $display("Internal state:");
       $display("---------------");
+      $display("State regs:");
+      $display("state00_reg = %08x state01_reg = %08x state02_reg = %08x state03_reg = %08x",
+               dut.state0_reg, dut.state1_reg, dut.state2_reg, dut.state3_reg);
+      $display("state04_reg = %08x state05_reg = %08x state06_reg = %08x state07_reg = %08x",
+               dut.state4_reg, dut.state5_reg, dut.state6_reg, dut.state7_reg);
+      $display("state08_reg = %08x state09_reg = %08x state10_reg = %08x state11_reg = %08x",
+               dut.state8_reg, dut.state9_reg, dut.state10_reg, dut.state11_reg);
+      $display("state12_reg = %08x state13_reg = %08x state14_reg = %08x state15_reg = %08x",
+               dut.state12_reg, dut.state13_reg, dut.state14_reg, dut.state15_reg);
+      $display("");
+
       $display("Round state X:");
       $display("x0_reg  = %08x, x1_reg  = %08x", dut.x0_reg, dut.x1_reg);
       $display("x2_reg  = %08x, x3_reg  = %08x", dut.x2_reg, dut.x3_reg);
@@ -267,7 +278,10 @@ module tb_chacha20_core();
   // chapter 2.3.2.
   //----------------------------------------------------------------
   task block_test;
-    begin
+    begin : btest
+      reg test_error;
+      test_error = 0;
+
       tc_ctr = tc_ctr + 1;
 
       $display("*** Block Function Test (RFC 7539, ch 2.3.2:");
@@ -275,13 +289,52 @@ module tb_chacha20_core();
       tb_core_key    = 256'h000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f;
       tb_core_keylen = KEY_256_BITS;
       tb_core_nonce  = 96'h000000090000004a00000000;
-      tb_core_ctr    = 32'h0;
+      tb_core_ctr    = 32'h00000001;
 
       tb_core_init   = 1;
-      #(CLK_PERIOD);
+      #(2 * CLK_PERIOD);
       tb_core_init   = 0;
-
+      #(2 * CLK_PERIOD);
       dump_state();
+
+      if (dut.state0_reg != 32'h61707865)
+        test_error = 1;
+      if (dut.state1_reg != 32'h3320646e)
+        test_error = 1;
+      if (dut.state2_reg != 32'h79622d32)
+        test_error = 1;
+      if (dut.state3_reg != 32'h6b206574)
+        test_error = 1;
+      if (dut.state4_reg != 32'h03020100)
+        test_error = 1;
+      if (dut.state5_reg != 32'h07060504)
+        test_error = 1;
+      if (dut.state6_reg != 32'h0b0a0908)
+        test_error = 1;
+      if (dut.state7_reg != 32'h0f0e0d0c)
+        test_error = 1;
+      if (dut.state8_reg != 32'h13121110)
+        test_error = 1;
+      if (dut.state9_reg != 32'h17161514)
+        test_error = 1;
+      if (dut.state10_reg != 32'h1b1a1918)
+        test_error = 1;
+      if (dut.state11_reg != 32'h1f1e1d1c)
+        test_error = 1;
+      if (dut.state12_reg != 32'h00000001)
+        test_error = 1;
+      if (dut.state13_reg != 32'h00000009)
+        test_error = 1;
+      if (dut.state14_reg != 32'h4a000000)
+        test_error = 1;
+      if (dut.state15_reg != 32'h00000000)
+        test_error = 1;
+
+      if (test_error)
+        $display("*** State after init is not correct.");
+      else
+        $display("*** State after init correct.");
+
     end
   endtask // block_test
 
