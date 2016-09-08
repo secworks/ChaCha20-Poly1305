@@ -46,8 +46,9 @@ module tb_chacha20_core();
   // Internal constant and parameter definitions.
   //----------------------------------------------------------------
   parameter CLK_HALF_PERIOD = 1;
-  parameter KEY_256_BITS = 1;
-  parameter TWENTY_ROUNDS = 20;
+  parameter CLK_PERIOD      = 2 * CLK_HALF_PERIOD;
+  parameter KEY_256_BITS    = 1;
+  parameter TWENTY_ROUNDS   = 20;
 
 
   //----------------------------------------------------------------
@@ -65,7 +66,7 @@ module tb_chacha20_core();
   reg [255 : 0]  tb_core_key;
   reg            tb_core_keylen;
   reg [4 : 0]    tb_core_rounds;
-  reg [95 : 0]   tb_core_iv;
+  reg [95 : 0]   tb_core_nonce;
   reg [31 : 0]   tb_core_ctr;
   wire           tb_core_ready;
   reg [0 : 511]  tb_core_data_in;
@@ -88,8 +89,8 @@ module tb_chacha20_core();
                   .next(tb_core_next),
                   .key(tb_core_key),
                   .keylen(tb_core_keylen),
-                  .iv(tb_core_iv[95 : 32]),
-                  .ctr({tb_core_iv[31 : 0], tb_core_ctr}),
+                  .iv(tb_core_nonce[95 : 32]),
+                  .ctr({tb_core_nonce[31 : 0], tb_core_ctr}),
                   .rounds(tb_core_rounds),
                   .data_in(tb_core_data_in),
                   .ready(tb_core_ready),
@@ -250,12 +251,39 @@ module tb_chacha20_core();
       tb_core_next    = 0;
       tb_core_key     = 0;
       tb_core_keylen  = 0;
-      tb_core_iv      = 96'h0;
+      tb_core_nonce   = 96'h0;
       tb_core_ctr     = 32'h0;
       tb_core_rounds  = 0;
       tb_core_data_in = 512'h0;
     end
   endtask // init_dut
+
+
+  //----------------------------------------------------------------
+  // block_test
+  //
+  // Test that the initialization and block processing in the
+  // chacha core conforms to the specification in RFC 7539,
+  // chapter 2.3.2.
+  //----------------------------------------------------------------
+  task block_test;
+    begin
+      tc_ctr = tc_ctr + 1;
+
+      $display("*** Block Function Test (RFC 7539, ch 2.3.2:");
+      tb_core_rounds = TWENTY_ROUNDS;
+      tb_core_key    = 256'h000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f;
+      tb_core_keylen = KEY_256_BITS;
+      tb_core_nonce  = 96'h000000090000004a00000000;
+      tb_core_ctr    = 32'h0;
+
+      tb_core_init   = 1;
+      #(CLK_PERIOD);
+      tb_core_init   = 0;
+
+      dump_state();
+    end
+  endtask // block_test
 
 
   //----------------------------------------------------------------
@@ -271,8 +299,10 @@ module tb_chacha20_core();
       dump_state();
 
       reset_dut();
-      $display("*** State after init:");
+      $display("*** State after reset:");
       dump_state();
+
+      block_test();
 
       $display("*** chacha_core simulation done ***");
       display_test_result();
