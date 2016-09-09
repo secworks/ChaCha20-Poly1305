@@ -36,21 +36,23 @@
 #
 #===================================================================
 
+CHACHA_QR_SRC =../../chacha/src/rtl/chacha_qr.v
 CHACHA_CORE_SRC =../../chacha/src/rtl/chacha_core.v ../../chacha/src/rtl/chacha_qr.v
 CORE_SRC =../src/rtl/chacha20_poly1305_core.v $(CHACHA_CORE_SRC)
 TOP_SRC =../src/rtl/chacha20_poly1305.v $(CORE_SRC)
 
+CHACHA_CORE_TB_SRC = ../src/tb/tb_chacha20_core.v
+CHACHA_QR_TB_SRC = ../src/tb/tb_chacha20_qr.v
+
 CORE_TB_SRC =../src/tb/tb_chacha20_poly1305_core.v
 TOP_TB_SRC =../src/tb/tb_chacha20_poly1305.v
-
-CHACHA_CORE_TB_SRC = ../src/tb/tb_chacha20_core.v
 
 CC=iverilog
 LINT=verilator
 LINTFLAGS =  --lint-only  -Wall -Wno-fatal -Wno-DECLFILENAME
 
 
-all: top.sim chacha.sim
+all: top.sim chacha.sim qr.sim
 
 
 top.sim: $(TOP_TB_SRC) $(TOP_SRC)
@@ -62,12 +64,15 @@ core.sim: $(CORE_TB_SRC) $(CORE_SRC)
 
 
 chacha.sim: $(CHACHA_CORE_TB_SRC) $(CHACHA_CORE_SRC)
-	$(CC) -o chacha.sim  $(CHACHA_CORE_TB_SRC) $(CHACHA_CORE_SRC)
+	$(CC) -o chacha.sim $(CHACHA_CORE_TB_SRC) $(CHACHA_CORE_SRC)
+
+
+qr.sim: $(CHACHA_QR_TB_SRC) $(CHACHA_QR_SRC)
+	$(CC) -o qr.sim $(CHACHA_QR_TB_SRC) $(CHACHA_QR_SRC)
 
 
 sim-core: core.sim
 	./core.sim
-
 
 
 sim-top: top.sim
@@ -76,6 +81,10 @@ sim-top: top.sim
 
 sim-chacha: chacha.sim
 	./chacha.sim
+
+
+sim-qr: qr.sim
+	./qr.sim
 
 
 lint:  $(TOP_SRC)
@@ -87,6 +96,7 @@ clean:
 	rm -f core.sim
 	rm -f top.sim
 	rm -f chacha.sim
+	rm -f qr.sim
 
 
 help:
@@ -95,9 +105,10 @@ help:
 	@echo "all:        Build all simulation targets."
 	@echo "top:        Build the top simulation target."
 	@echo "core:       Build the top simulation target."
-	@echo "sim-top:    Run top level simulation."
-	@echo "sim-core:   Run core level simulation."
-	@echo "sim-chacha: Run core level simulation."
+	@echo "sim-top:    Run top simulation."
+	@echo "sim-core:   Run core simulation."
+	@echo "sim-chacha: Run chacha core simulation."
+	@echo "sim-qr:     Run qr simulation."
 	@echo "lint:       Lint the source."
 	@echo "clean:      Remove build targets."
 
