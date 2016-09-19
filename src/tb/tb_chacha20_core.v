@@ -140,29 +140,18 @@ module tb_chacha20_core();
       $display("");
       $display("Internal state:");
       $display("---------------");
-      $display("State regs:");
+      $display("State:");
       $display("state00_reg = %08x state01_reg = %08x state02_reg = %08x state03_reg = %08x",
-               dut.state0_reg, dut.state1_reg, dut.state2_reg, dut.state3_reg);
+               dut.state_reg[00], dut.state_reg[01], dut.state_reg[02], dut.state_reg[03]);
       $display("state04_reg = %08x state05_reg = %08x state06_reg = %08x state07_reg = %08x",
-               dut.state4_reg, dut.state5_reg, dut.state6_reg, dut.state7_reg);
+               dut.state_reg[04], dut.state_reg[05], dut.state_reg[06], dut.state_reg[07]);
       $display("state08_reg = %08x state09_reg = %08x state10_reg = %08x state11_reg = %08x",
-               dut.state8_reg, dut.state9_reg, dut.state10_reg, dut.state11_reg);
+               dut.state_reg[08], dut.state_reg[09], dut.state_reg[10], dut.state_reg[11]);
       $display("state12_reg = %08x state13_reg = %08x state14_reg = %08x state15_reg = %08x",
-               dut.state12_reg, dut.state13_reg, dut.state14_reg, dut.state15_reg);
+               dut.state_reg[12], dut.state_reg[13], dut.state_reg[14], dut.state_reg[15]);
       $display("");
 
-      $display("Round state X:");
-      $display("x0_reg  = %08x, x1_reg  = %08x", dut.x0_reg, dut.x1_reg);
-      $display("x2_reg  = %08x, x3_reg  = %08x", dut.x2_reg, dut.x3_reg);
-      $display("x4_reg  = %08x, x5_reg  = %08x", dut.x4_reg, dut.x5_reg);
-      $display("x6_reg  = %08x, x7_reg  = %08x", dut.x6_reg, dut.x7_reg);
-      $display("x8_reg  = %08x, x9_reg  = %08x", dut.x8_reg, dut.x9_reg);
-      $display("x10_reg = %08x, x11_reg = %08x", dut.x10_reg, dut.x11_reg);
-      $display("x12_reg = %08x, x13_reg = %08x", dut.x12_reg, dut.x13_reg);
-      $display("x14_reg = %08x, x15_reg = %08x", dut.x14_reg, dut.x15_reg);
-      $display("");
-
-      $display("rounds_reg = %01x", dut.rounds_reg);
+      $display("rounds = %01x", dut.rounds);
       $display("qr_ctr_reg = %01x, dr_ctr_reg  = %01x", dut.qr_ctr_reg, dut.dr_ctr_reg);
       $display("block0_ctr_reg = %08x, block1_ctr_reg = %08x", dut.block0_ctr_reg, dut.block1_ctr_reg);
       $display("");
@@ -170,10 +159,10 @@ module tb_chacha20_core();
       $display("chacha_ctrl_reg = %02x", dut.chacha_ctrl_reg);
       $display("");
 
-      $display("data_in_reg[255 : 192] = %016x", dut.data_in_reg[255 : 192]);
-      $display("data_in_reg[191 : 128] = %016x", dut.data_in_reg[191 : 128]);
-      $display("data_in_reg[127 : 064] = %016x", dut.data_in_reg[127 : 064]);
-      $display("data_in_reg[063 : 000] = %016x", dut.data_in_reg[063 : 000]);
+      $display("data_in[255 : 192] = %016x", dut.data_in[255 : 192]);
+      $display("data_in[191 : 128] = %016x", dut.data_in[191 : 128]);
+      $display("data_in[127 : 064] = %016x", dut.data_in[127 : 064]);
+      $display("data_in[063 : 000] = %016x", dut.data_in[063 : 000]);
       $display("data_out_valid_reg = %01x", dut.data_out_valid_reg);
       $display("");
 
@@ -313,37 +302,37 @@ module tb_chacha20_core();
       dump_state();
       dump_inout();
 
-      if (dut.state0_reg != 32'h61707865)
+      if (dut.state_reg[00] != 32'h61707865)
         test_error = 1;
-      if (dut.state1_reg != 32'h3320646e)
+      if (dut.state_reg[01] != 32'h3320646e)
         test_error = 1;
-      if (dut.state2_reg != 32'h79622d32)
+      if (dut.state_reg[02] != 32'h79622d32)
         test_error = 1;
-      if (dut.state3_reg != 32'h6b206574)
+      if (dut.state_reg[03] != 32'h6b206574)
         test_error = 1;
-      if (dut.state4_reg != 32'h03020100)
+      if (dut.state_reg[04] != 32'h03020100)
         test_error = 1;
-      if (dut.state5_reg != 32'h07060504)
+      if (dut.state_reg[05] != 32'h07060504)
         test_error = 1;
-      if (dut.state6_reg != 32'h0b0a0908)
+      if (dut.state_reg[06] != 32'h0b0a0908)
         test_error = 1;
-      if (dut.state7_reg != 32'h0f0e0d0c)
+      if (dut.state_reg[07] != 32'h0f0e0d0c)
         test_error = 1;
-      if (dut.state8_reg != 32'h13121110)
+      if (dut.state_reg[08] != 32'h13121110)
         test_error = 1;
-      if (dut.state9_reg != 32'h17161514)
+      if (dut.state_reg[09] != 32'h17161514)
         test_error = 1;
-      if (dut.state10_reg != 32'h1b1a1918)
+      if (dut.state_reg[10] != 32'h1b1a1918)
         test_error = 1;
-      if (dut.state11_reg != 32'h1f1e1d1c)
+      if (dut.state_reg[11] != 32'h1f1e1d1c)
         test_error = 1;
-      if (dut.state12_reg != 32'h00000001)
+      if (dut.state_reg[12] != 32'h00000001)
         test_error = 1;
-      if (dut.state13_reg != 32'h00000009)
+      if (dut.state_reg[13] != 32'h00000009)
         test_error = 1;
-      if (dut.state14_reg != 32'h4a000000)
+      if (dut.state_reg[14] != 32'h4a000000)
         test_error = 1;
-      if (dut.state15_reg != 32'h00000000)
+      if (dut.state_reg[15] != 32'h00000000)
         test_error = 1;
 
       if (test_error)
