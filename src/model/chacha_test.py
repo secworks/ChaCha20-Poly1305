@@ -45,13 +45,36 @@ import sys
 
 
 #-------------------------------------------------------------------
+# print_chacha_state()
+#
+# Print the given chacha state matrix.
 #-------------------------------------------------------------------
 def print_chacha_state(state):
-    print("chacha state:")
     print("0x%08x 0x%08x 0x%08x 0x%08x" % (state[00], state[1],  state[2],  state[3]))
     print("0x%08x 0x%08x 0x%08x 0x%08x" % (state[4],  state[5],  state[6],  state[7]))
     print("0x%08x 0x%08x 0x%08x 0x%08x" % (state[8],  state[9],  state[10], state[11]))
     print("0x%08x 0x%08x 0x%08x 0x%08x" % (state[12], state[13], state[14], state[15]))
+    print("")
+
+
+#-------------------------------------------------------------------
+# check_chacha_state()
+#
+# Check a givem chacha state against the given expected state.
+# Report if state is correct, or which elements are incorrect.
+#-------------------------------------------------------------------
+def check_chacha_state(state, expected):
+    errors = 0
+    for i in range(len(state)):
+        if state[i] != expected[i]:
+            print("state[%02d] = 0x%08x does not match expected 0x%08x" %
+                      (i, state[i], expected[i]))
+            errors += 1
+
+    if (errors > 0):
+        print("State is incorrect at %02d elements" % errors)
+    else:
+        print("State is correct.")
     print("")
 
 
@@ -84,6 +107,21 @@ def qr(a, b, c, d):
     b2 = b1 ^ c1
     b3 = rotl(b2, 7)
     return (a1, b3, c1, d3)
+
+
+#-------------------------------------------------------------------
+# quarterround()
+#
+# Update the given state by performing the qr function on the
+# state elements with the given indices.
+#-------------------------------------------------------------------
+def quarterround(state, ai, bi, ci, di):
+    (ap, bp, cp, dp) = qr(state[ai], state[bi], state[ci], state[di])
+    state[ai] = ap
+    state[bi] = bp
+    state[ci] = cp
+    state[di] = dp
+    return state
 
 
 #-------------------------------------------------------------------
@@ -124,27 +162,26 @@ def run_qr_test():
 def run_qr_chacha_state_test():
     chacha_state = [0] * 16
 
-    chacha_state[0]  = 0x879531e0
-    chacha_state[1]  = 0xc5ecf37d
-    chacha_state[2]  = 0x516461b1
-    chacha_state[3]  = 0xc9a62f8a
+    init_state = [0x879531e0, 0xc5ecf37d, 0x516461b1, 0xc9a62f8a,
+                  0x44c20ef3, 0x3390af7f, 0xd9fc690b, 0x2a5f714c,
+                  0x53372767, 0xb00a5631, 0x974c541a, 0x359e9963,
+                  0x5c971061, 0x3d631689, 0x2098d9d6, 0x91dbd320]
 
-    chacha_state[4]  = 0x44c20ef3
-    chacha_state[5]  = 0x3390af7f
-    chacha_state[6]  = 0xd9fc690b
-    chacha_state[7]  = 0x2a5f714c
+    expected_state = [0x879531e0, 0xc5ecf37d, 0xbdb886dc, 0xc9a62f8a,
+                      0x44c20ef3, 0x3390af7f, 0xd9fc690b, 0xcfacafd2,
+                      0xe46bea80, 0xb00a5631, 0x974c541a, 0x359e9963,
+                      0x5c971061, 0xccc07c79, 0x2098d9d6, 0x91dbd320]
 
-    chacha_state[8]  = 0x53372767
-    chacha_state[9]  = 0xb00a5631
-    chacha_state[10] = 0x974c541a
-    chacha_state[11] = 0x359e9963
-
-    chacha_state[12] = 0x5c971061
-    chacha_state[13] = 0x3d631689
-    chacha_state[14] = 0x2098d9d6
-    chacha_state[15] = 0x91dbd320
-
+    print("ChaCha quarterround update test.")
+    print("ChaCha state after init:")
+    for i in range(len(init_state)):
+        chacha_state[i] = init_state[i]
     print_chacha_state(chacha_state)
+
+    print("ChaCha state after quarterround(2, 7, 8, 13):")
+    chacha_state = quarterround(chacha_state, 2, 7, 8, 13)
+    print_chacha_state(chacha_state)
+    check_chacha_state(chacha_state, expected_state)
 
 
 #-------------------------------------------------------------------
