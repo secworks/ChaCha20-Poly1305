@@ -112,8 +112,8 @@ def qr(a, b, c, d):
 #-------------------------------------------------------------------
 # quarterround()
 #
-# Update the given state by performing the qr function on the
-# state elements with the given indices.
+# Update the given state by applying the qr function on the
+# given elements in the state.
 #-------------------------------------------------------------------
 def quarterround(state, ai, bi, ci, di):
     (ap, bp, cp, dp) = qr(state[ai], state[bi], state[ci], state[di])
@@ -122,6 +122,38 @@ def quarterround(state, ai, bi, ci, di):
     state[ci] = cp
     state[di] = dp
     return state
+
+
+#-------------------------------------------------------------------
+# doubleround()
+#
+# Perform the ChaCha doubleround on the given state by applying
+# eigth specific quarterrounds.
+#-------------------------------------------------------------------
+def doubleround(state):
+    quarterround(state, 0, 4, 8,12)
+    quarterround(state, 1, 5, 9,13)
+    quarterround(state, 2, 6,10,14)
+    quarterround(state, 3, 7,11,15)
+    quarterround(state, 0, 5,10,15)
+    quarterround(state, 1, 6,11,12)
+    quarterround(state, 2, 7, 8,13)
+    quarterround(state, 3, 4, 9,14)
+    return state
+
+
+#-------------------------------------------------------------------
+# chacha_block()
+#
+# The chacha block function. Given a 256 bit key, 32 bit counter
+# and 96 bit nonce will create a state and then update the state
+# for 10 doublerounds. Finally the finalized state is returned
+# as a sequence of bytes.
+#
+# This code follows the pseudo code in 2.3.1 in RFC 7539.
+#-------------------------------------------------------------------
+def chacha_block(key, counter, nonce):
+    pass
 
 
 #-------------------------------------------------------------------
@@ -158,6 +190,10 @@ def run_qr_test():
 
 
 #-------------------------------------------------------------------
+# run_qr_chacha_state_test()
+#
+# Test the quarterround function applied to the chacha state.
+# Test vectors from chapter 2.2.1 in RFC 7539.
 #-------------------------------------------------------------------
 def run_qr_chacha_state_test():
     chacha_state = [0] * 16
@@ -185,11 +221,45 @@ def run_qr_chacha_state_test():
 
 
 #-------------------------------------------------------------------
+# run_chacha_doubleround_function_test()
+#
+# Test the chacha doubleround function applied 10 times
+# on the chacha state.
+# Test vectors from chapter 2.3.2 in RFC 7539.
+#-------------------------------------------------------------------
+def run_chacha_doubleround_function_test():
+    init_state = [0x61707865, 0x3320646e, 0x79622d32, 0x6b206574,
+                  0x03020100, 0x07060504, 0x0b0a0908, 0x0f0e0d0c,
+                  0x13121110, 0x17161514, 0x1b1a1918, 0x1f1e1d1c,
+                  0x00000001, 0x09000000, 0x4a000000, 0x00000000]
+
+    expected_state = [0x837778ab, 0xe238d763, 0xa67ae21e, 0x5950bb2f,
+                      0xc4f2d0c7, 0xfc62bb2f, 0x8fa018fc, 0x3f5ec7b7,
+                      0x335271c2, 0xf29489f3, 0xeabda8fc, 0x82e46ebd,
+                      0xd19c12b4, 0xb04e16de, 0x9e83d0cb, 0x4e3c50a2]
+
+    chacha_state = [0] * 16
+    for i in range(len(init_state)):
+        chacha_state[i] = init_state[i]
+    print("ChaCha state after init:")
+    print_chacha_state(chacha_state)
+
+    print("ChaCha state updates for 10 doublerounds:")
+    for i in range(10):
+        chacha_state = doubleround(chacha_state)
+        print("After round %02d:" % (i + 1))
+        print_chacha_state(chacha_state)
+
+    check_chacha_state(chacha_state, expected_state)
+
+
+#-------------------------------------------------------------------
 #-------------------------------------------------------------------
 def main():
     run_rotl_test()
     run_qr_test()
     run_qr_chacha_state_test()
+    run_chacha_doubleround_function_test()
 
 
 #-------------------------------------------------------------------
