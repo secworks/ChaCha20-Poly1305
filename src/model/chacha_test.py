@@ -95,6 +95,28 @@ def rotl(op, bits):
 
 
 #-------------------------------------------------------------------
+# l2lw()
+#
+# Convert a given list with four bytes to little endian
+# 32bit word.
+#-------------------------------------------------------------------
+def l2lw(bytelist):
+    return (bytelist[3] << 24) + (bytelist[2] << 16) +\
+      (bytelist[1] << 8) + bytelist[0]
+
+
+#-------------------------------------------------------------------
+# get_lendian_words()
+#
+# Convert a given list of bytes to list of little endian
+# 32-bit endian words.
+#-------------------------------------------------------------------
+def get_lendian_words(bytelist):
+    num_words = int(len(bytelist) / 4)
+    return [l2lw(bytelist[(i * 4) : (i*4 + 4)]) for i in range(num_words)]
+
+
+#-------------------------------------------------------------------
 #-------------------------------------------------------------------
 # Tested functions.
 #-------------------------------------------------------------------
@@ -272,15 +294,28 @@ def run_chacha_doubleround_function_test():
 
 
 #-------------------------------------------------------------------
+# run_chacha_block_test()
+#-------------------------------------------------------------------
+def run_chacha_block_test():
+    key_bytes = [0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+                 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
+                 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
+                 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f]
+
+    key = get_lendian_words(key_bytes)
+    print(key)
+
+#-------------------------------------------------------------------
 # main()
 #
 # Run chacha tests.
 #-------------------------------------------------------------------
 def main():
-    run_rotl_test()
-    run_qr_test()
-    run_qr_chacha_state_test()
-    run_chacha_doubleround_function_test()
+#    run_rotl_test()
+#    run_qr_test()
+#    run_qr_chacha_state_test()
+#    run_chacha_doubleround_function_test()
+    run_chacha_block_test()
 
 
 #-------------------------------------------------------------------
