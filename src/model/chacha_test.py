@@ -95,25 +95,15 @@ def rotl(op, bits):
 
 
 #-------------------------------------------------------------------
-# l2lw()
-#
-# Convert a given list with four bytes to little endian
-# 32bit word.
-#-------------------------------------------------------------------
-def l2lw(bytelist):
-    return (bytelist[3] << 24) + (bytelist[2] << 16) +\
-      (bytelist[1] << 8) + bytelist[0]
-
-
-#-------------------------------------------------------------------
-# get_lendian_words()
+# l2lw32()
 #
 # Convert a given list of bytes to list of little endian
 # 32-bit endian words.
 #-------------------------------------------------------------------
-def get_lendian_words(bytelist):
+def l2lw32(bytelist):
     num_words = int(len(bytelist) / 4)
-    return [l2lw(bytelist[(i * 4) : (i*4 + 4)]) for i in range(num_words)]
+    chunks = [bytelist[(i * 4) : (i*4 + 4)] for i in range(num_words)]
+    return [((b[3] << 24) + (b[2] << 16) + (b[1] << 8)) for b in chunks]
 
 
 #-------------------------------------------------------------------
@@ -302,7 +292,7 @@ def run_chacha_block_test():
                  0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
                  0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f]
 
-    key = get_lendian_words(key_bytes)
+    key = l2lw32(key_bytes)
     print(key)
 
 #-------------------------------------------------------------------
