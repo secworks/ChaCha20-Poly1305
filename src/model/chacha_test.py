@@ -295,6 +295,12 @@ def run_chacha_block_test():
     key = l2lw32(key_bytes)
     print(key)
 
+    nonce_bytes = [0x00, 0x00, 0x00, 0x09, 0x00, 0x00, 0x00, 0x4a,
+                   0x00, 0x00, 0x00, 0x00]
+    nonce = l2lw32(nonce_bytes)
+    print(nonce)
+
+
 #-------------------------------------------------------------------
 # main()
 #
