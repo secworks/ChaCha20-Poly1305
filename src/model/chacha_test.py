@@ -264,9 +264,11 @@ def chacha_encryption(key, counter, nonce, plaintext):
 
     keystream = []
     for b in range(num_blocks):
+        print("Block %d:" % (b + 1))
         block = chacha_block(key, counter, nonce)
         block_bytes = w32bl(block)
         keystream += block_bytes
+        counter += 1
 
     ciphertext = []
     for i in range(len(plaintext)):
@@ -448,6 +450,9 @@ def run_chacha_encryption_test():
                            0x5a, 0xf9, 0x0b, 0xbf, 0x74, 0xa3, 0x5b, 0xe6,
                            0xb4, 0x0b, 0x8e, 0xed, 0xf2, 0x78, 0x5e, 0x42,
                            0x87, 0x4d]
+
+    nonce_bytes = [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x4a,
+                   0x00, 0x00, 0x00, 0x00]
 
     key = l2lw32(key_bytes)
     nonce = l2lw32(nonce_bytes)
