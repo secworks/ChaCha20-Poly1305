@@ -52,6 +52,18 @@ module tb_chacha20_core();
 
 
   //----------------------------------------------------------------
+  // l2b()
+  //
+  // Swap bytes from little to big endian byte order.
+  //----------------------------------------------------------------
+  function [31 : 0] l2b(input [31 : 0] op);
+    begin
+      l2b = {op[7 : 0], op[15 : 8], op[23 : 16], op[31 : 24]};
+    end
+  endfunction // b2l
+
+
+  //----------------------------------------------------------------
   // Register and Wire declarations.
   //----------------------------------------------------------------
   reg [31 : 0] cycle_ctr;
@@ -81,6 +93,9 @@ module tb_chacha20_core();
 
   //----------------------------------------------------------------
   // chacha_core device under test.
+  //
+  // Note that we instantiate with a l2b fix for the msb
+  // part of the counter.
   //----------------------------------------------------------------
   chacha_core dut(
                   .clk(tb_clk),
@@ -90,7 +105,7 @@ module tb_chacha20_core();
                   .key(tb_core_key),
                   .keylen(tb_core_keylen),
                   .iv(tb_core_nonce[63 : 0]),
-                  .ctr({tb_core_nonce[95 : 64], tb_core_ctr}),
+                  .ctr({l2b(tb_core_nonce[95 : 64]), tb_core_ctr}),
                   .rounds(tb_core_rounds),
                   .data_in(tb_core_data_in),
                   .ready(tb_core_ready),
@@ -290,7 +305,7 @@ module tb_chacha20_core();
       tb_core_rounds = TWENTY_ROUNDS;
       tb_core_key    = 256'h000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f;
       tb_core_keylen = KEY_256_BITS;
-      tb_core_nonce  = 96'h090000000000004a00000000;
+      tb_core_nonce  = 96'h000000090000004a00000000;
       tb_core_ctr    = 32'h00000001;
 
       $display("*** Starting init of the cipher.");
