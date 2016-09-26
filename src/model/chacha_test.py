@@ -198,15 +198,19 @@ def chacha_block(key, counter, nonce):
                  key[4],     key[5],     key[6],     key[7],
                 counter,   nonce[0],   nonce[1],   nonce[2]]
 
+    print("ChaCha block state after init:")
     print_chacha_state(state)
 
     working_state = state[:]
     for i in range(NUM_DOUBLEROUNDS):
         working_state = doubleround(working_state)
 
+    print("ChaCha block state after 10 doublerounds:")
     print_chacha_state(working_state)
     for i in range(len(state)):
         state[i] = (state[i] + working_state[i]) & 0xffffffff
+
+    print("ChaCha block state after final additions:")
     print_chacha_state(state)
     return state
 
@@ -347,6 +351,7 @@ def run_chacha_block_test():
 
     counter = 0x0000001
 
+    print("*** Test of chacha block function:")
     block = chacha_block(key, counter, nonce)
     check_chacha_state(block, expected_block)
 
