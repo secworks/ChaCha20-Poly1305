@@ -122,6 +122,8 @@ module tb_chacha20_core();
     begin : dut_monitor
       cycle_ctr = cycle_ctr + 1;
 
+      dump_state();
+
       // Display cycle counter.
       if (display_cycle_ctr)
         begin
@@ -164,10 +166,7 @@ module tb_chacha20_core();
       $display("data_in[127 : 064] = %016x", dut.data_in[127 : 064]);
       $display("data_in[063 : 000] = %016x", dut.data_in[063 : 000]);
       $display("data_out_valid_reg = %01x", dut.data_out_valid_reg);
-      $display("");
-
-      $display("qr0_a_prim = %08x, qr0_b_prim = %08x", dut.qr0_a_prim, dut.qr0_b_prim);
-      $display("qr0_c_prim = %08x, qr0_d_prim = %08x", dut.qr0_c_prim, dut.qr0_d_prim);
+      $display("data_out           = %064x", dut.data_out);
       $display("");
     end
   endtask // dump_state
@@ -291,7 +290,7 @@ module tb_chacha20_core();
       tb_core_rounds = TWENTY_ROUNDS;
       tb_core_key    = 256'h000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f;
       tb_core_keylen = KEY_256_BITS;
-      tb_core_nonce  = 96'h000000090000004a00000000;
+      tb_core_nonce  = 96'h090000000000004a00000000;
       tb_core_ctr    = 32'h00000001;
 
       $display("*** Starting init of the cipher.");
@@ -302,6 +301,7 @@ module tb_chacha20_core();
       dump_state();
       dump_inout();
 
+      // Check if state is initialized correctly.
       if (dut.state_reg[00] != 32'h61707865)
         test_error = 1;
       if (dut.state_reg[01] != 32'h3320646e)
@@ -328,7 +328,7 @@ module tb_chacha20_core();
         test_error = 1;
       if (dut.state_reg[12] != 32'h00000001)
         test_error = 1;
-      if (dut.state_reg[13] != 32'h00000009)
+      if (dut.state_reg[13] != 32'h09000000)
         test_error = 1;
       if (dut.state_reg[14] != 32'h4a000000)
         test_error = 1;
