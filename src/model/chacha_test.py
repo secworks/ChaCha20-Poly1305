@@ -45,6 +45,10 @@ import sys
 
 #-------------------------------------------------------------------
 #-------------------------------------------------------------------
+NUM_DOUBLEROUNDS = 10
+
+#-------------------------------------------------------------------
+#-------------------------------------------------------------------
 # Helper functions.
 #-------------------------------------------------------------------
 #-------------------------------------------------------------------
@@ -193,8 +197,18 @@ def chacha_block(key, counter, nonce):
                  key[0],     key[1],     key[2],     key[3],
                  key[4],     key[5],     key[6],     key[7],
                 counter,   nonce[0],   nonce[1],   nonce[2]]
+
     print_chacha_state(state)
 
+    working_state = state[:]
+    for i in range(NUM_DOUBLEROUNDS):
+        working_state = doubleround(working_state)
+
+    print_chacha_state(working_state)
+    for i in range(len(state)):
+        state[i] = (state[i] + working_state[i]) & 0xffffffff
+    print_chacha_state(state)
+    return state
 
 
 #-------------------------------------------------------------------
@@ -331,10 +345,7 @@ def run_chacha_block_test():
     counter = 0x0000001
 
     block = chacha_block(key, counter, nonce)
-#
-#    conv_bytes = lw32l(expected_block)
-#    print(conv_bytes)
-#    print(expected_bytes)
+    check_chacha_state(block, expected_block)
 
 
 #-------------------------------------------------------------------
