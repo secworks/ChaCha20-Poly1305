@@ -44,8 +44,11 @@
 import sys
 
 #-------------------------------------------------------------------
+# Defines.
 #-------------------------------------------------------------------
 NUM_DOUBLEROUNDS = 10
+DISPLAY_DR_STATE = False
+
 
 #-------------------------------------------------------------------
 #-------------------------------------------------------------------
@@ -303,18 +306,23 @@ def run_chacha_doubleround_function_test():
                       0x335271c2, 0xf29489f3, 0xeabda8fc, 0x82e46ebd,
                       0xd19c12b4, 0xb04e16de, 0x9e83d0cb, 0x4e3c50a2]
 
+    print("*** Test of the ChaCha doubleround function.")
     chacha_state = [0] * 16
     for i in range(len(init_state)):
         chacha_state[i] = init_state[i]
     print("ChaCha state after init:")
     print_chacha_state(chacha_state)
 
-    print("ChaCha state updates for 10 doublerounds:")
+    if (DISPLAY_DR_STATE):
+        print("ChaCha state updates for 10 doublerounds:")
     for i in range(10):
         chacha_state = doubleround(chacha_state)
-        print("After round %02d:" % (i + 1))
-        print_chacha_state(chacha_state)
+        if (DISPLAY_DR_STATE):
+            print("After round %02d:" % (i + 1))
+            print_chacha_state(chacha_state)
 
+    print("ChaCha state after 10 doublerounds:")
+    print_chacha_state(chacha_state)
     check_chacha_state(chacha_state, expected_state)
 
 
@@ -362,10 +370,10 @@ def run_chacha_block_test():
 # Run chacha tests.
 #-------------------------------------------------------------------
 def main():
-#    run_rotl_test()
-#    run_qr_test()
-#    run_qr_chacha_state_test()
-#    run_chacha_doubleround_function_test()
+    run_rotl_test()
+    run_qr_test()
+    run_qr_chacha_state_test()
+    run_chacha_doubleround_function_test()
     run_chacha_block_test()
 
 
