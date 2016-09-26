@@ -115,7 +115,7 @@ def lw32l(wlist):
 def l2lw32(bytelist):
     num_words = int(len(bytelist) / 4)
     chunks = [bytelist[(i * 4) : (i*4 + 4)] for i in range(num_words)]
-    return [((b[3] << 24) + (b[2] << 16) + (b[1] << 8)) for b in chunks]
+    return [((b[3] << 24) + (b[2] << 16) + (b[1] << 8) + b[0]) for b in chunks]
 
 
 #-------------------------------------------------------------------
