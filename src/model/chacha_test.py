@@ -95,6 +95,18 @@ def rotl(op, bits):
 
 
 #-------------------------------------------------------------------
+# lw32l()
+#
+# Convert a given list of 32-bit little endian words to a
+# list of bytes.
+#-------------------------------------------------------------------
+def lw32l(wlist):
+    blists = [[(w & 0xff), ((w >> 8) & 0xff), ((w >> 16) & 0xff),
+                   (w >> 24)] for w in wlist]
+    return wlists
+
+
+#-------------------------------------------------------------------
 # l2lw32()
 #
 # Convert a given list of bytes to list of little endian
@@ -177,7 +189,12 @@ def doubleround(state):
 # This code follows the pseudo code in 2.3.1 in RFC 7539.
 #-------------------------------------------------------------------
 def chacha_block(key, counter, nonce):
-    pass
+    state = [0x61707865, 0x3320646e, 0x79622d32, 0x6b206574,
+                 key[0],     key[1],     key[2],     key[3],
+                 key[4],     key[5],     key[6],     key[7],
+                counter,   nonce[0],   nonce[1],   nonce[2]]
+    print_chacha_state(state)
+
 
 
 #-------------------------------------------------------------------
@@ -287,18 +304,37 @@ def run_chacha_doubleround_function_test():
 # run_chacha_block_test()
 #-------------------------------------------------------------------
 def run_chacha_block_test():
+    expected_block = [0xe4e7f110, 0x15593bd1, 0x1fdd0f50, 0xc47120a3,
+                      0xc7f4d1c7, 0x0368c033, 0x9aaa2204, 0x4e6cd4c3,
+                      0x466482d2, 0x09aa9f07, 0x05d7c214, 0xa2028bd9,
+                      0xd19c12b5, 0xb94e16de, 0xe883d0cb, 0x4e3c50a2]
+
+    expected_bytes = [0x10, 0xf1, 0xe7, 0xe4, 0xd1, 0x3b, 0x59, 0x15,
+                      0x50, 0x0f, 0xdd, 0x1f, 0xa3, 0x20, 0x71, 0xc4,
+                      0xc7, 0xd1, 0xf4, 0xc7, 0x33, 0xc0, 0x68, 0x03,
+                      0x04, 0x22, 0xaa, 0x9a, 0xc3, 0xd4, 0x6c, 0x4e,
+                      0xd2, 0x82, 0x64, 0x46, 0x07, 0x9f, 0xaa, 0x09,
+                      0x14, 0xc2, 0xd7, 0x05, 0xd9, 0x8b, 0x02, 0xa2,
+                      0xb5, 0x12, 0x9c, 0xd1, 0xde, 0x16, 0x4e, 0xb9,
+                      0xcb, 0xd0, 0x83, 0xe8, 0xa2, 0x50, 0x3c, 0x4e]
+
     key_bytes = [0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
                  0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
                  0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
                  0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f]
-
     key = l2lw32(key_bytes)
-    print(key)
 
     nonce_bytes = [0x00, 0x00, 0x00, 0x09, 0x00, 0x00, 0x00, 0x4a,
                    0x00, 0x00, 0x00, 0x00]
     nonce = l2lw32(nonce_bytes)
-    print(nonce)
+
+    counter = 0x0000001
+
+    block = chacha_block(key, counter, nonce)
+#
+#    conv_bytes = lw32l(expected_block)
+#    print(conv_bytes)
+#    print(expected_bytes)
 
 
 #-------------------------------------------------------------------
