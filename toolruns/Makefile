@@ -37,7 +37,7 @@
 #===================================================================
 
 CHACHA_QR_SRC =../../chacha/src/rtl/chacha_qr.v
-CHACHA_CORE_SRC =../../chacha/src/rtl/chacha_core.v ../../chacha/src/rtl/chacha_qr.v
+CHACHA_CORE_SRC =../../chacha/src/rtl/chacha_core.v $(CHACHA_QR_SRC)
 CORE_SRC =../src/rtl/chacha20_poly1305_core.v $(CHACHA_CORE_SRC)
 TOP_SRC =../src/rtl/chacha20_poly1305.v $(CORE_SRC)
 
