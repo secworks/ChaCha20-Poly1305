@@ -256,6 +256,10 @@ def chacha_block(key, counter, nonce):
 
 
 #-------------------------------------------------------------------
+# chacha_encryption()
+#
+# Given key, initial counter value and nonce will emcipher
+# the given plaintext with a generated chacha keystream.
 #-------------------------------------------------------------------
 def chacha_encryption(key, counter, nonce, plaintext):
     num_blocks = int(len(plaintext) / 64)
@@ -264,7 +268,6 @@ def chacha_encryption(key, counter, nonce, plaintext):
 
     keystream = []
     for b in range(num_blocks):
-        print("Block %d:" % (b + 1))
         block = chacha_block(key, counter, nonce)
         block_bytes = w32bl(block)
         keystream += block_bytes
@@ -415,7 +418,7 @@ def run_chacha_block_test():
 #-------------------------------------------------------------------
 # run_chacha_encryption_test()
 #
-# Test vectors from chapter 2.4. in the RFC.
+# Test vectors from chapter 2.4.2 in the RFC.
 #-------------------------------------------------------------------
 def run_chacha_encryption_test():
 
