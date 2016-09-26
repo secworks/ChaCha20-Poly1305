@@ -316,6 +316,9 @@ def run_chacha_doubleround_function_test():
 
 #-------------------------------------------------------------------
 # run_chacha_block_test()
+#
+# Test of the ChaCha block function. The test vector is from
+# chapter 2.3.2 in the RFC.
 #-------------------------------------------------------------------
 def run_chacha_block_test():
     expected_block = [0xe4e7f110, 0x15593bd1, 0x1fdd0f50, 0xc47120a3,
