@@ -224,15 +224,6 @@ def chacha_block(key, counter, nonce):
 #-------------------------------------------------------------------
 #-------------------------------------------------------------------
 
-#-------------------------------------------------------------------
-# run_rotl_test()
-#-------------------------------------------------------------------
-def run_rotl_test():
-    print("Test of rotl function.")
-    for i in range(32):
-        print("%02d: 0x%08x" % (i, rotl(0x10000001, i)))
-    print("")
-
 
 #-------------------------------------------------------------------
 # run_qr_test()
@@ -245,7 +236,7 @@ def run_qr_test():
     c = 0x9b8d6f43
     d = 0x01234567
     (ap, bp, cp, dp) = qr(a, b, c, d)
-    print("Test of qr function:")
+    print("*** Test of qr function:")
     print("a:  0x%08x b:  0x%08x c:  0x%08x d:  0x%08x" % (a, b, c, d))
     print("ap: 0x%08x bp: 0x%08x cp: 0x%08x dp: 0x%08x" % (ap, bp, cp, dp))
 
@@ -276,7 +267,7 @@ def run_qr_chacha_state_test():
                       0xe46bea80, 0xb00a5631, 0x974c541a, 0x359e9963,
                       0x5c971061, 0xccc07c79, 0x2098d9d6, 0x91dbd320]
 
-    print("ChaCha quarterround update test.")
+    print("*** ChaCha quarterround update test.")
     print("ChaCha state after init:")
     for i in range(len(init_state)):
         chacha_state[i] = init_state[i]
@@ -370,7 +361,6 @@ def run_chacha_block_test():
 # Run chacha tests.
 #-------------------------------------------------------------------
 def main():
-    run_rotl_test()
     run_qr_test()
     run_qr_chacha_state_test()
     run_chacha_doubleround_function_test()
