@@ -58,6 +58,30 @@ DISPLAY_DR_STATE = False
 
 
 #-------------------------------------------------------------------
+# check_bytelists()
+#
+# Chack if a given list of bytes matches the expected list of
+# bytes given.
+#-------------------------------------------------------------------
+def check_bytelists(bytelist, expected_bytelist):
+    if len(bytelist) != len(expected_bytelist):
+        print("Error: Length of bytelist does not match length of expected bytelist.")
+        return
+
+    errors = 0
+    for i in range(len(bytelist)):
+        if bytelist[i] != expected_bytelist[i]:
+            errors += 1
+    if errors > 0:
+        print("Error: bytelist does not match expected bytelist.")
+        print(bytelist)
+        print(expected_bytelist)
+    else:
+        print("Bytelist is correct.")
+    print("")
+
+
+#-------------------------------------------------------------------
 # print_chacha_state()
 #
 # Print the given chacha state matrix.
@@ -102,15 +126,21 @@ def rotl(op, bits):
 
 
 #-------------------------------------------------------------------
-# lw32l()
+# w32bl()
 #
 # Convert a given list of 32-bit little endian words to a
 # list of bytes.
 #-------------------------------------------------------------------
-def lw32l(wlist):
+def w32bl(wlist):
     blists = [[(w & 0xff), ((w >> 8) & 0xff), ((w >> 16) & 0xff),
                    (w >> 24)] for w in wlist]
-    return wlists
+    merged_blist = []
+    for chunk in blists:
+        merged_blist.append(chunk[0])
+        merged_blist.append(chunk[1])
+        merged_blist.append(chunk[2])
+        merged_blist.append(chunk[3])
+    return merged_blist
 
 
 #-------------------------------------------------------------------
@@ -359,6 +389,8 @@ def run_chacha_block_test():
     print("*** Test of chacha block function:")
     block = chacha_block(key, counter, nonce)
     check_chacha_state(block, expected_block)
+    block_bytes = w32bl(block)
+    check_bytelists(block_bytes, expected_bytes)
 
 
 #-------------------------------------------------------------------
@@ -397,6 +429,7 @@ def main():
     run_chacha_doubleround_function_test()
     run_chacha_block_test()
     run_chacha_encryption_test()
+
 
 #-------------------------------------------------------------------
 #-------------------------------------------------------------------
