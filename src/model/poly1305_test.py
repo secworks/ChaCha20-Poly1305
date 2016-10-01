@@ -65,7 +65,19 @@ def clamp_r(r):
 
 #-------------------------------------------------------------------
 #-------------------------------------------------------------------
-def gen_poly1305_tag(key, message):
+def poly1305_mac(key, message):
+    p = (1<<130)-5
+    print("p = 0x%033x" % p)
+
+    # Calculate number of 16 byte chunks the message contains.
+    blocks = int(len(message) / 16)
+    lastbytes = len(message) - (16 * blocks)
+    if (len(message) % 16):
+        blocks += 1
+
+    print("Length: %d, number of blocks: %d, bytes in last block: %d" %
+              (len(message), blocks, lastbytes))
+
     return [0x01] * 16
 
 #-------------------------------------------------------------------
@@ -94,14 +106,17 @@ def test_clamp_r():
 
 #-------------------------------------------------------------------
 #-------------------------------------------------------------------
-def test_gen_poly1305_tag():
+def test_poly1305_mac():
     key = [0x85, 0xd6, 0xbe, 0x78, 0x57, 0x55, 0x6d, 0x33,
            0x7f, 0x44, 0x52, 0xfe, 0x42, 0xd5, 0x06, 0xa8,
            0x01, 0x03, 0x80, 0x8a, 0xfb, 0x0d, 0xb2, 0xfd,
            0x4a, 0xbf, 0xf6, 0xaf, 0x41, 0x49, 0xf5, 0x1b]
 
-    message = [0x55, 0xaa] * 60
-    my_tag = gen_poly1305_tag(key, message)
+    message = [0x55, 0xaa] * 9
+
+    print("*** Testing Poly1305 mac.")
+
+    my_tag = poly1305_mac(key, message)
     result = verify_poly1305_tag(key, message, my_tag)
 
 
@@ -112,12 +127,8 @@ def test_gen_poly1305_tag():
 #-------------------------------------------------------------------
 def main():
     print("Testing Poly1305")
-#    slist = [0x01, 0x03, 0x80, 0x8a, 0xfb, 0x0d, 0xb2, 0xfd,
-#             0x4a, 0xbf, 0xf6, 0xaf, 0x41, 0x49, 0xf5, 0x1b]
-#    s = b2le(slist)
-#    print("s = 0x%032x" % s)
-
     test_clamp_r()
+    test_poly1305_mac()
 
 
 #-------------------------------------------------------------------
