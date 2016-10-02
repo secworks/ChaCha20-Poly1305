@@ -65,6 +65,27 @@ def clamp_r(r):
 
 #-------------------------------------------------------------------
 #-------------------------------------------------------------------
+def poly1305_update(acc, r, b):
+    p = 0x3fffffffffffffffffffffffffffffffb
+
+    print("blockword:   0x%033x" % b)
+    b = b + 2**128
+    print("blockword01: 0x%033x" % b)
+
+    print("acc:         0x%032x" % acc)
+    acc = (acc + b)
+    print("acc + b:     0x%034x" % acc)
+    acc = acc * r
+    print("acc * r:     0x%068x" % acc)
+    acc = acc % p
+    print("acc mod p:   0x%033x" % acc)
+    print("")
+
+    return acc
+
+
+#-------------------------------------------------------------------
+#-------------------------------------------------------------------
 def poly1305_mac(key, message):
     p = (1<<130)-5
     print("p = 0x%033x" % p)
@@ -106,6 +127,19 @@ def test_clamp_r():
 
 #-------------------------------------------------------------------
 #-------------------------------------------------------------------
+def test_poly1305_update():
+    print("*** Testing Poly1305 update.")
+    acc = 0x00
+    r = 0x806d5400e52447c036d555408bed685
+    block = 0x6f4620636968706172676f7470797243
+    acc = poly1305_update(acc, r, block)
+
+    block = 0x6f7247206863726165736552206d7572
+    acc = poly1305_update(acc, r, block)
+
+
+#-------------------------------------------------------------------
+#-------------------------------------------------------------------
 def test_poly1305_mac():
     key = [0x85, 0xd6, 0xbe, 0x78, 0x57, 0x55, 0x6d, 0x33,
            0x7f, 0x44, 0x52, 0xfe, 0x42, 0xd5, 0x06, 0xa8,
@@ -128,7 +162,8 @@ def test_poly1305_mac():
 def main():
     print("Testing Poly1305")
     test_clamp_r()
-    test_poly1305_mac()
+#    test_poly1305_mac()
+    test_poly1305_update()
 
 
 #-------------------------------------------------------------------
