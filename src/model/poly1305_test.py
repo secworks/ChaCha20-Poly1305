@@ -99,6 +99,10 @@ def poly1305_mac(key, message):
     print("Length: %d, number of blocks: %d, bytes in last block: %d" %
               (len(message), blocks, lastbytes))
 
+    for i in range(blocks):
+        block = message[i * 16 : i * 16 + 16]
+        print("block %02d" % i, block)
+
     return [0x01] * 16
 
 #-------------------------------------------------------------------
@@ -146,7 +150,7 @@ def test_poly1305_mac():
            0x01, 0x03, 0x80, 0x8a, 0xfb, 0x0d, 0xb2, 0xfd,
            0x4a, 0xbf, 0xf6, 0xaf, 0x41, 0x49, 0xf5, 0x1b]
 
-    message = [0x55, 0xaa] * 9
+    message = [0x55, 0xaa] * 19
 
     print("*** Testing Poly1305 mac.")
 
@@ -162,8 +166,8 @@ def test_poly1305_mac():
 def main():
     print("Testing Poly1305")
     test_clamp_r()
-#    test_poly1305_mac()
-    test_poly1305_update()
+    test_poly1305_mac()
+#    test_poly1305_update()
 
 
 #-------------------------------------------------------------------
