@@ -58,12 +58,21 @@ def b2le(blist):
 
 
 #-------------------------------------------------------------------
+# clamp_r()
+#
+# Perform the clamping of the Poly1305 r parameter.
 #-------------------------------------------------------------------
 def clamp_r(r):
     return r & 0x0ffffffc0ffffffc0ffffffc0fffffff
 
 
 #-------------------------------------------------------------------
+# poly1305_update()
+#
+# The inner core of the Poly1305 function. Given the state
+# of the accumulator, the r parameter and a message block
+# represented as a padded number it will calculate the
+# updated value for the accumulator.
 #-------------------------------------------------------------------
 def poly1305_update(acc, r, b):
     p = 0x3fffffffffffffffffffffffffffffffb
