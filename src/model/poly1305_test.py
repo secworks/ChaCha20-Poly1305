@@ -75,11 +75,8 @@ def clamp_r(r):
 # updated value for the accumulator.
 #-------------------------------------------------------------------
 def poly1305_update(acc, r, b):
-    p = 0x3fffffffffffffffffffffffffffffffb
-
-    print("blockword:   0x%033x" % b)
-    b = b + 2**128
-    print("blockword01: 0x%033x" % b)
+    p = (1<<130)-5
+    print("Calculating new accumuator value")
 
     print("acc:         0x%032x" % acc)
     acc = (acc + b)
@@ -99,11 +96,9 @@ def poly1305_update(acc, r, b):
 # The main Poly1305 function as specified in 2.5.1 in the RFC.
 #-------------------------------------------------------------------
 def poly1305_mac(key, message):
-    p = (1<<130)-5
     r = b2le(key[0:15])
     s = b2le(key[16:31])
 
-    print("p:       0x%033x" % p)
     print("r:       0x%033x" % r)
     r = clamp_r(r)
     print("clamp_r: 0x%033x" % r)
@@ -115,13 +110,15 @@ def poly1305_mac(key, message):
     if (len(message) % 16):
         blocks += 1
 
+    acc = 0
     for i in range(blocks):
         block = message[i * 16 : i * 16 + 16]
         print("block %02d" % i, block)
         block.append(0x01)
         print("block %02d" % i, block)
         print("bw = 0x%033x" % b2le(block))
-
+        b = b2le(block)
+        acc = poly1305_update(acc, r, b)
     return [0x01] * 16
 
 #-------------------------------------------------------------------
