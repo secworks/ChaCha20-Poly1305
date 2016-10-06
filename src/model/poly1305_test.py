@@ -94,10 +94,20 @@ def poly1305_update(acc, r, b):
 
 
 #-------------------------------------------------------------------
+# poly1305_mac()
+#
+# The main Poly1305 function as specified in 2.5.1 in the RFC.
 #-------------------------------------------------------------------
 def poly1305_mac(key, message):
     p = (1<<130)-5
-    print("p = 0x%033x" % p)
+    r = b2le(key[0:15])
+    s = b2le(key[16:31])
+
+    print("p:       0x%033x" % p)
+    print("r:       0x%033x" % r)
+    r = clamp_r(r)
+    print("clamp_r: 0x%033x" % r)
+    print("s:       0x%033x" % s)
 
     # Calculate number of 16 byte chunks the message contains.
     blocks = int(len(message) / 16)
@@ -105,12 +115,12 @@ def poly1305_mac(key, message):
     if (len(message) % 16):
         blocks += 1
 
-    print("Length: %d, number of blocks: %d, bytes in last block: %d" %
-              (len(message), blocks, lastbytes))
-
     for i in range(blocks):
         block = message[i * 16 : i * 16 + 16]
         print("block %02d" % i, block)
+        block.append(0x01)
+        print("block %02d" % i, block)
+        print("bw = 0x%033x" % b2le(block))
 
     return [0x01] * 16
 
