@@ -200,6 +200,11 @@ def test_clamp_r():
 
 
 #-------------------------------------------------------------------
+# test_poly1305_update()
+#
+# Test the poly1305_update function that calculates a new
+# accumulator value based on give r, blockword and accumulator.
+# The test vectors are from 2.5.2 in the RFC.
 #-------------------------------------------------------------------
 def test_poly1305_update():
     print("*** Testing Poly1305 update.")
@@ -213,6 +218,10 @@ def test_poly1305_update():
 
 
 #-------------------------------------------------------------------
+# test_poly1305_mac()
+#
+# Test program for the Poly1305_mac function. Test vectors
+# are from 2.5.2 in the RFC.
 #-------------------------------------------------------------------
 def test_poly1305_mac():
     key = [0x85, 0xd6, 0xbe, 0x78, 0x57, 0x55, 0x6d, 0x33,
@@ -226,10 +235,16 @@ def test_poly1305_mac():
                0x61, 0x72, 0x63, 0x68, 0x20, 0x47, 0x72, 0x6f,
                0x75, 0x70]
 
+    expected = [0xa8, 0x06, 0x1d, 0xc1, 0x30, 0x51, 0x36, 0xc6,
+                0xc2, 0x2b, 0x8b, 0xaf, 0x0c, 0x01, 0x27, 0xa9]
+
     print("*** Testing Poly1305 mac.")
 
     my_tag = poly1305_mac(key, message)
-    result = verify_poly1305_tag(key, message, my_tag)
+    if my_tag == expected:
+        print("Correct tag generated.")
+    else:
+        print("Incorrect tag generated.")
 
 
 #-------------------------------------------------------------------
