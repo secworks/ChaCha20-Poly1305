@@ -43,6 +43,45 @@
 #-------------------------------------------------------------------
 import sys
 
+
+#-------------------------------------------------------------------
+# Defines.
+#-------------------------------------------------------------------
+MAXVALUE_128_BITS = (2**128 - 1)
+VERBOSE = False
+
+#-------------------------------------------------------------------
+# print_bytelist()
+#-------------------------------------------------------------------
+def print_bytelist(bl):
+    print("[", end="")
+    for i in range(len(bl)):
+        print("0x%02x " % bl[i], end="")
+    print("]")
+
+
+#-------------------------------------------------------------------
+# bl2hs()
+#
+#
+#-------------------------------------------------------------------
+def bl2hs(b):
+    pass
+
+#-------------------------------------------------------------------
+# w2bl()
+#
+# Convert a given word into a list of bytes.
+#-------------------------------------------------------------------
+def w2bl(num_bytes, w):
+    bl = []
+    for i in range(num_bytes):
+        b = w & 0xff
+        bl.append(b)
+        w = w >> 8
+    return bl
+
+
 #-------------------------------------------------------------------
 # b2le()
 #
@@ -51,9 +90,11 @@ import sys
 def b2le(blist):
     acc = 0
     for b in blist[::-1]:
-        print("0x%02x" % (b), end=" ")
+        if VERBOSE:
+            print("0x%02x" % (b), end=" ")
         acc = (acc << 8) + b
-    print("")
+    if VERBOSE:
+        print("")
     return acc
 
 
@@ -78,14 +119,13 @@ def poly1305_update(acc, r, b):
     p = (1<<130)-5
     print("Calculating new accumuator value")
 
-    print("acc:         0x%032x" % acc)
+    print("acc:         0x%033x" % acc)
     acc = (acc + b)
-    print("acc + b:     0x%034x" % acc)
+    print("acc + b:     0x%033x" % acc)
     acc = acc * r
-    print("acc * r:     0x%068x" % acc)
+    print("acc * r:     0x%065x" % acc)
     acc = acc % p
     print("acc mod p:   0x%033x" % acc)
-    print("")
 
     return acc
 
@@ -96,12 +136,12 @@ def poly1305_update(acc, r, b):
 # The main Poly1305 function as specified in 2.5.1 in the RFC.
 #-------------------------------------------------------------------
 def poly1305_mac(key, message):
-    r = b2le(key[0:15])
-    s = b2le(key[16:31])
-
+    # Extract r and s from key. Clamp r.
+    r = b2le(key[0:16])
+    s = b2le(key[16:32])
+    cr = clamp_r(r)
     print("r:       0x%033x" % r)
-    r = clamp_r(r)
-    print("clamp_r: 0x%033x" % r)
+    print("clamp_r: 0x%033x" % cr)
     print("s:       0x%033x" % s)
 
     # Calculate number of 16 byte chunks the message contains.
@@ -110,16 +150,29 @@ def poly1305_mac(key, message):
     if (len(message) % 16):
         blocks += 1
 
+    # Loop over the blocks, updating the accumulator.
     acc = 0
     for i in range(blocks):
+        print("")
         block = message[i * 16 : i * 16 + 16]
-        print("block %02d" % i, block)
         block.append(0x01)
-        print("block %02d" % i, block)
-        print("bw = 0x%033x" % b2le(block))
         b = b2le(block)
-        acc = poly1305_update(acc, r, b)
-    return [0x01] * 16
+        print("padded block %02d: " % i, end="")
+        print_bytelist(block)
+        print("block word:       0x%033x" % b)
+        acc = poly1305_update(acc, cr, b)
+    print("")
+
+    # Generating the final tagword and convert to list of bytes.
+    acc = acc + s
+    print("acc + s:     0x%033x" % acc)
+    tagword = acc & MAXVALUE_128_BITS
+    print("tagword:     0x%033x" % tagword)
+    tag = w2bl(16, tagword)
+    print("tag:         ", end="")
+    print_bytelist(tag)
+
+    return tag
 
 #-------------------------------------------------------------------
 #-------------------------------------------------------------------
@@ -143,6 +196,7 @@ def test_clamp_r():
         print("Correct clamping of r.")
     else:
         print("Error: Incorrect clamping of r.")
+    print("")
 
 
 #-------------------------------------------------------------------
@@ -166,7 +220,11 @@ def test_poly1305_mac():
            0x01, 0x03, 0x80, 0x8a, 0xfb, 0x0d, 0xb2, 0xfd,
            0x4a, 0xbf, 0xf6, 0xaf, 0x41, 0x49, 0xf5, 0x1b]
 
-    message = [0x55, 0xaa] * 19
+    message = [0x43, 0x72, 0x79, 0x70, 0x74, 0x6f, 0x67, 0x72,
+               0x61, 0x70, 0x68, 0x69, 0x63, 0x20, 0x46, 0x6f,
+               0x72, 0x75, 0x6d, 0x20, 0x52, 0x65, 0x73, 0x65,
+               0x61, 0x72, 0x63, 0x68, 0x20, 0x47, 0x72, 0x6f,
+               0x75, 0x70]
 
     print("*** Testing Poly1305 mac.")
 
