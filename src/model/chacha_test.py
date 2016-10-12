@@ -258,7 +258,7 @@ def chacha_block(key, counter, nonce):
 #-------------------------------------------------------------------
 # chacha_encryption()
 #
-# Given key, initial counter value and nonce will emcipher
+# Given key, initial counter value and nonce will encipher
 # the given plaintext with a generated chacha keystream.
 #-------------------------------------------------------------------
 def chacha_encryption(key, counter, nonce, plaintext):
