@@ -116,7 +116,7 @@ def clamp_r(r):
 # updated value for the accumulator.
 #-------------------------------------------------------------------
 def poly1305_update(acc, r, b):
-    p = (1<<130)-5
+    p = 2**130 -5
     print("Calculating new accumuator value")
 
     print("acc:         0x%033x" % acc)
