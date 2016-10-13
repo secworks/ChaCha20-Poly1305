@@ -48,6 +48,10 @@
 #-------------------------------------------------------------------
 import sys
 from chacha_test import chacha_encryption
+from chacha_test import chacha_block
+from chacha_test import l2lw32
+from chacha_test import w32bl
+from poly1305_test import print_bytelist
 
 
 #-------------------------------------------------------------------
@@ -56,6 +60,39 @@ from chacha_test import chacha_encryption
 
 
 #-------------------------------------------------------------------
+# poly1305_keygen_test()
+#
+# Test that we can generate a correct Poly1305 key using chacha20.
+# Testvectors from 2.6.2 in the RFC.
+#-------------------------------------------------------------------
+def poly1305_keygen_test():
+    key_bytes = [0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87,
+                 0x88, 0x89, 0x8a, 0x8b, 0x8c, 0x8d, 0x8e, 0x8f,
+                 0x90, 0x91, 0x92, 0x93, 0x94, 0x95, 0x96, 0x97,
+                 0x98, 0x99, 0x9a, 0x9b, 0x9c, 0x9d, 0x9e, 0x9f]
+    key = l2lw32(key_bytes)
+
+    nonce_bytes = [0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x02, 0x03,
+                   0x04, 0x05, 0x06, 0x07]
+    nonce = l2lw32(nonce_bytes)
+
+    counter = 0x00000000;
+
+    print("*** Test of the Poly1305 key generation using ChaCha20 block function.")
+
+    block = chacha_block(key, counter, nonce)
+    print("Generated block bytes:")
+    block_bytes = w32bl(block)
+    print_bytelist(block_bytes)
+    print()
+    p1305_key_bytes = block_bytes[0:32]
+    print("Generated key bytes:")
+    print_bytelist(p1305_key_bytes)
+    print()
+
+
+#-------------------------------------------------------------------
+# ch20p1305_tests()
 #-------------------------------------------------------------------
 def ch20p1305_tests():
     key = [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -73,10 +110,11 @@ def ch20p1305_tests():
              0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
              0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]
 
+    print("*** Test of the Ch20P1305 AEAD function.")
     ciphertext = chacha_encryption(key, counter, nonce, ptext)
     print("Ciphertext:")
     print(ciphertext)
-
+    print()
 
 #-------------------------------------------------------------------
 # main()
@@ -85,7 +123,7 @@ def ch20p1305_tests():
 #-------------------------------------------------------------------
 def main():
     ch20p1305_tests()
-
+    poly1305_keygen_test()
 
 #-------------------------------------------------------------------
 # __name__

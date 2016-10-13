@@ -54,10 +54,10 @@ VERBOSE = False
 # print_bytelist()
 #-------------------------------------------------------------------
 def print_bytelist(bl):
-    print("[", end="")
     for i in range(len(bl)):
+        if i > 0 and (i % 16 == 0):
+            print()
         print("0x%02x " % bl[i], end="")
-    print("]")
 
 
 #-------------------------------------------------------------------
