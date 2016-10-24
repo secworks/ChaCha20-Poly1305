@@ -42,6 +42,7 @@
 # Python module imports.
 #-------------------------------------------------------------------
 import sys
+from utils import *
 
 #-------------------------------------------------------------------
 # Defines.
@@ -56,110 +57,6 @@ key_bytes = [0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
 
 nonce_bytes = [0x00, 0x00, 0x00, 0x09, 0x00, 0x00, 0x00, 0x4a,
                0x00, 0x00, 0x00, 0x00]
-
-#-------------------------------------------------------------------
-#-------------------------------------------------------------------
-# Helper functions.
-#-------------------------------------------------------------------
-#-------------------------------------------------------------------
-
-
-#-------------------------------------------------------------------
-# check_bytelists()
-#
-# Chack if a given list of bytes matches the expected list of
-# bytes given.
-#-------------------------------------------------------------------
-def check_bytelists(bytelist, expected_bytelist):
-    if len(bytelist) != len(expected_bytelist):
-        print("Error: Length of bytelist does not match length of expected bytelist.")
-        return
-
-    errors = 0
-    for i in range(len(bytelist)):
-        if bytelist[i] != expected_bytelist[i]:
-            errors += 1
-    if errors > 0:
-        print("Error: bytelist does not match expected bytelist.")
-        print(bytelist)
-        print(expected_bytelist)
-    else:
-        print("Bytelist is correct.")
-    print("")
-
-
-#-------------------------------------------------------------------
-# print_chacha_state()
-#
-# Print the given chacha state matrix.
-#-------------------------------------------------------------------
-def print_chacha_state(state):
-    print("0x%08x 0x%08x 0x%08x 0x%08x" % (state[00], state[1],  state[2],  state[3]))
-    print("0x%08x 0x%08x 0x%08x 0x%08x" % (state[4],  state[5],  state[6],  state[7]))
-    print("0x%08x 0x%08x 0x%08x 0x%08x" % (state[8],  state[9],  state[10], state[11]))
-    print("0x%08x 0x%08x 0x%08x 0x%08x" % (state[12], state[13], state[14], state[15]))
-    print("")
-
-
-#-------------------------------------------------------------------
-# check_chacha_state()
-#
-# Check a givem chacha state against the given expected state.
-# Report if state is correct, or which elements are incorrect.
-#-------------------------------------------------------------------
-def check_chacha_state(state, expected):
-    errors = 0
-    for i in range(len(state)):
-        if state[i] != expected[i]:
-            print("state[%02d] = 0x%08x does not match expected 0x%08x" %
-                      (i, state[i], expected[i]))
-            errors += 1
-
-    if (errors > 0):
-        print("State is incorrect at %02d elements" % errors)
-    else:
-        print("State is correct.")
-    print("")
-
-
-#-------------------------------------------------------------------
-# rotl()
-#
-# Rotate 32-bit operand giveb number of bits left.
-#-------------------------------------------------------------------
-def rotl(op, bits):
-    assert bits < 33
-    return ((op << bits) + (op >> (32 - bits))) & 0xffffffff
-
-
-#-------------------------------------------------------------------
-# w32bl()
-#
-# Convert a given list of 32-bit little endian words to a
-# list of bytes.
-#-------------------------------------------------------------------
-def w32bl(wlist):
-    blists = [[(w & 0xff), ((w >> 8) & 0xff), ((w >> 16) & 0xff),
-                   (w >> 24)] for w in wlist]
-    merged_blist = []
-    for chunk in blists:
-        merged_blist.append(chunk[0])
-        merged_blist.append(chunk[1])
-        merged_blist.append(chunk[2])
-        merged_blist.append(chunk[3])
-    return merged_blist
-
-
-#-------------------------------------------------------------------
-# l2lw32()
-#
-# Convert a given list of bytes to list of little endian
-# 32-bit endian words.
-#-------------------------------------------------------------------
-def l2lw32(bytelist):
-    num_words = int(len(bytelist) / 4)
-    chunks = [bytelist[(i * 4) : (i*4 + 4)] for i in range(num_words)]
-    return [((b[3] << 24) + (b[2] << 16) + (b[1] << 8) + b[0]) for b in chunks]
 
 
 #-------------------------------------------------------------------
