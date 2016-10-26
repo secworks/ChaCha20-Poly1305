@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 #=======================================================================
 #
-# ch20p1305.py
-# ------------
+# ch20p1305_test.py
+# -----------------
 # Simple model of the Chacha20-Poly1305 construction as specified
 # in RFC 7539 (https://tools.ietf.org/html/rfc7539). The model
 # uses the test vectors in the RFC.
@@ -125,6 +125,7 @@ def main():
     ch20p1305_tests()
     poly1305_keygen_test()
 
+
 #-------------------------------------------------------------------
 # __name__
 # Python thingy which allows the file to be run standalone as
@@ -135,5 +136,5 @@ if __name__=="__main__":
     sys.exit(main())
 
 #=======================================================================
-# EOF chacha.py
+# EOF ch20p1305_test.py
 #=======================================================================
