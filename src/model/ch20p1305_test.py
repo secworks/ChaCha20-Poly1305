@@ -49,9 +49,7 @@
 import sys
 from chacha_test import chacha_encryption
 from chacha_test import chacha_block
-from chacha_test import l2lw32
-from chacha_test import w32bl
-from poly1305_test import print_bytelist
+from ch20p1305_utils import *
 
 
 #-------------------------------------------------------------------
@@ -91,7 +89,7 @@ def aead_chacha20_poly1305_test():
 
     iv = [0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47]
 
-    common = [07, 0x00, 0x00, 0x00]
+    common = [0x07, 0x00, 0x00, 0x00]
 
     ciphertext = [0xd3, 0x1a, 0x8d, 0x34, 0x64, 0x8e, 0x60, 0xdb,
                   0x7b, 0x86, 0xaf, 0xbc, 0x53, 0xef, 0x7e, 0xc2,
