@@ -69,7 +69,7 @@ def clamp_r(r):
 # updated value for the accumulator.
 #-------------------------------------------------------------------
 def poly1305_update(acc, r, b):
-    p = 2**130 -5
+    p = 2**130 - 5
     print("Calculating new accumuator value")
 
     print("acc:         0x%033x" % acc)
@@ -157,13 +157,28 @@ def test_clamp_r():
 #-------------------------------------------------------------------
 def test_poly1305_update():
     print("*** Testing Poly1305 update.")
-    acc = 0x00
-    r = 0x806d5400e52447c036d555408bed685
-    block = 0x6f4620636968706172676f7470797243
-    acc = poly1305_update(acc, r, block)
+    acc   = 0x00
+    r     = 0x0806d5400e52447c036d555408bed685
 
-    block = 0x6f7247206863726165736552206d7572
-    acc = poly1305_update(acc, r, block)
+    block1 = 0x6f4620636968706172676f7470797243
+    acc1   = poly1305_update(acc, r, block1)
+
+    block2 = 0x6f7247206863726165736552206d7572
+    acc2   = poly1305_update(acc1, r, block2)
+
+    block3 = 0x00000000000000000000000000007075
+    acc3   = poly1305_update(acc1, r, block3)
+
+    print("acc after block 1:  0x%033x" % acc1)
+    print("acc after block 2:  0x%033x" % acc2)
+    print("acc after block 3:  0x%033x" % acc3)
+
+    if (acc1 != 0x2c88c77849d64ae9147ddeb88e69c83fc):
+        print("Expected acc1: 0x2c88c77849d64ae9147ddeb88e69c83fc")
+    if (acc2 != 0x2d8adaf23b0337fa7cccfb4ea344b30de):
+        print("Expected acc2: 0x2d8adaf23b0337fa7cccfb4ea344b30de")
+    if (acc3 != 0x28d31b7caff946c77c8844335369d03a7):
+        print("Expected acc2: 0x28d31b7caff946c77c8844335369d03a7")
 
 
 #-------------------------------------------------------------------
@@ -190,10 +205,12 @@ def test_poly1305_mac():
     print("*** Testing Poly1305 mac.")
 
     my_tag = poly1305_mac(key, message)
+    print("")
     if my_tag == expected:
         print("Correct tag generated.")
     else:
         print("Incorrect tag generated.")
+    print("")
 
 
 #-------------------------------------------------------------------
@@ -204,8 +221,8 @@ def test_poly1305_mac():
 def main():
     print("Testing Poly1305")
     test_clamp_r()
+    # test_poly1305_update()
     test_poly1305_mac()
-#    test_poly1305_update()
 
 
 #-------------------------------------------------------------------
