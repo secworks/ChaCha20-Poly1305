@@ -40,6 +40,7 @@ module poly1305();
   reg [127 : 0] r_reg;
   reg [127 : 0] s_reg;
   reg [128 : 0] acc_reg;
+  reg [127 : 0] tag_reg;
 
   //----------------------------------------------------------------
   // Internal constant and parameter definitions.
@@ -53,9 +54,11 @@ module poly1305();
   //
   // Initialize the internal Poly1305 state.
   //----------------------------------------------------------------
-  task poly1305_init(input [127 : 0] key);
+  task poly1305_init(input [255 : 0] key);
     begin : poly1305_init
-      r_reg = key & R_CLAMP;
+      r_reg = key[255 : 128] & R_CLAMP;
+      s_reg = key[127 :   0];
+      acc_reg = 129'h0;
     end
   endtask // poly1305_init
 
@@ -77,7 +80,8 @@ module poly1305();
   //----------------------------------------------------------------
   task poly1305_finalize;
     begin : poly1305_update
-
+      acc_reg = acc_reg + s_reg;
+      tag_reg = acc_reg[127 : 0];
     end
   endtask // poly1305_init
 
@@ -87,15 +91,15 @@ module poly1305();
   //----------------------------------------------------------------
   task test_poly1305_init;
     begin : test_poly1305_init
-      reg [127 : 0] key;
+      reg [255 : 0] key;
       reg [127 : 0] expected;
 
-      key = 128'ha806d542fe52447f336d555778bed685;
+      key = {128'ha806d542fe52447f336d555778bed685, 128'h0};
       expected = 128'h0806d5400e52447c036d555408bed685;
 
       poly1305_init(key);
 
-      $display("key: 0x%032x", key);
+      $display("key: 0x%064x", key);
       $display("r:   0x%032x", r_reg);
       if (r_reg == expected)
           $display("r is correct.");
