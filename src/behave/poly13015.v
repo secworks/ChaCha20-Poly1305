@@ -110,12 +110,33 @@ module poly1305();
     end
   endtask // poly1305_init
 
+
+  //----------------------------------------------------------------
+  // test poly1305_update()
+  //----------------------------------------------------------------
+  task test_poly1305_update;
+    begin : test_poly1305_update
+      reg [127 : 0] block;
+
+      acc_reg = 130'h0;
+      r_reg = 128'h0806d5400e52447c036d555408bed685;
+      block = 128'h6f4620636968706172676f7470797243;
+      poly1305_update(block);
+      $display("acc after block1: 0x%033x", acc_reg);
+
+      block = 128'h6f7247206863726165736552206d7572;
+      poly1305_update(block);
+      $display("acc after block2: 0x%033x", acc_reg);
+    end
+  endtask // test_poly1305_update
+
   //----------------------------------------------------------------
   // poly1305_tests
   //----------------------------------------------------------------
   initial
     begin : poly1305_tests
       test_poly1305_init();
+      test_poly1305_update();
 
     end // poly1305_tests
 
