@@ -39,14 +39,14 @@ module poly1305();
   // Global Poly1305 state registers.
   reg [127 : 0] r_reg;
   reg [127 : 0] s_reg;
-  reg [128 : 0] acc_reg;
+  reg [129 : 0] acc_reg;
   reg [127 : 0] tag_reg;
 
   //----------------------------------------------------------------
   // Internal constant and parameter definitions.
   //----------------------------------------------------------------
   localparam R_CLAMP  = 128'h0ffffffc0ffffffc0ffffffc0fffffff;
-  localparam POLY1305 = 134'h3fffffffffffffffffffffffffffffffb;
+  localparam POLY1305 = 130'h3fffffffffffffffffffffffffffffffb;
 
 
   //----------------------------------------------------------------
@@ -58,7 +58,7 @@ module poly1305();
     begin : poly1305_init
       r_reg = key[255 : 128] & R_CLAMP;
       s_reg = key[127 :   0];
-      acc_reg = 129'h0;
+      acc_reg = 130'h0;
     end
   endtask // poly1305_init
 
@@ -70,7 +70,9 @@ module poly1305();
   //----------------------------------------------------------------
   task poly1305_update(input [127 : 0] block);
     begin : poly1305_update
-
+      acc_reg = acc_reg + block;
+      acc_reg = acc_reg * r_reg;
+      acc_reg = acc_reg % POLY1305;
     end
   endtask // poly1305_init
 
