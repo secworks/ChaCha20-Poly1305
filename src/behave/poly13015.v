@@ -38,7 +38,8 @@
 module poly1305();
   // Global Poly1305 state registers.
   reg [127 : 0] r_reg;
-
+  reg [127 : 0] s_reg;
+  reg [128 : 0] acc_reg;
 
   //----------------------------------------------------------------
   // Internal constant and parameter definitions.
@@ -49,6 +50,8 @@ module poly1305();
 
   //----------------------------------------------------------------
   // poly1305_init()
+  //
+  // Initialize the internal Poly1305 state.
   //----------------------------------------------------------------
   task poly1305_init(input [127 : 0] key);
     begin : poly1305_init
@@ -58,9 +61,21 @@ module poly1305();
 
 
   //----------------------------------------------------------------
-  // poly1305_init()
+  // poly1305_update()
+  //
+  // Given a block, update the internal Poly1305 state.
   //----------------------------------------------------------------
   task poly1305_update(input [127 : 0] block);
+    begin : poly1305_update
+
+    end
+  endtask // poly1305_init
+
+
+  //----------------------------------------------------------------
+  // poly1305_finalize()
+  //----------------------------------------------------------------
+  task poly1305_finalize;
     begin : poly1305_update
 
     end
