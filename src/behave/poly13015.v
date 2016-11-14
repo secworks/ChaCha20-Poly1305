@@ -36,6 +36,7 @@
 //======================================================================
 
 module poly1305();
+  // Global Poly1305 state registers.
   reg [127 : 0] r_reg;
 
 
@@ -50,7 +51,7 @@ module poly1305();
   // poly1305_init()
   //----------------------------------------------------------------
   task poly1305_init(input [127 : 0] key);
-    begin
+    begin : poly1305_init
       r_reg = key & R_CLAMP;
     end
   endtask // poly1305_init
@@ -60,23 +61,41 @@ module poly1305();
   // poly1305_init()
   //----------------------------------------------------------------
   task poly1305_update(input [127 : 0] block);
-    begin
+    begin : poly1305_update
 
     end
   endtask // poly1305_init
 
 
   //----------------------------------------------------------------
+  // test poly1305_init()
+  //----------------------------------------------------------------
+  task test_poly1305_init;
+    begin : test_poly1305_init
+      reg [127 : 0] key;
+      reg [127 : 0] expected;
+
+      key = 128'ha806d542fe52447f336d555778bed685;
+      expected = 128'h0806d5400e52447c036d555408bed685;
+
+      poly1305_init(key);
+
+      $display("key: 0x%032x", key);
+      $display("r:   0x%032x", r_reg);
+      if (r_reg == expected)
+          $display("r is correct.");
+      else
+          $display("r is incorrect. Expexted 0x%0x32", expected);
+    end
+  endtask // poly1305_init
+
+  //----------------------------------------------------------------
   // poly1305_tests
   //----------------------------------------------------------------
   initial
     begin : poly1305_tests
-      reg [127 : 0] key;
+      test_poly1305_init();
 
-      // Check that we correctly clamp given a key.
-      key = 128'h85d6be7857556d337f4452fe42d506a8;
-      poly1305_init(key);
-      $display("r: 0x%032x", r_reg);
     end // poly1305_tests
 
 endmodule // poly1305
