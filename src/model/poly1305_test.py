@@ -70,15 +70,18 @@ def clamp_r(r):
 #-------------------------------------------------------------------
 def poly1305_update(acc, r, b):
     p = 2**130 - 5
-    print("Calculating new accumuator value")
+    print("")
+    print("poly1305_update. Calculating new accumuator value with operands:")
+    print("acc:       0x%033x" % acc)
+    print("r:         0x%033x" % r)
+    print("b:         0x%033x" % b)
 
-    print("acc:         0x%033x" % acc)
     acc = (acc + b)
-    print("acc + b:     0x%033x" % acc)
+    print("acc + b:   0x%033x" % acc)
     acc = acc * r
-    print("acc * r:     0x%065x" % acc)
+    print("acc * r:   0x%065x" % acc)
     acc = acc % p
-    print("acc mod p:   0x%033x" % acc)
+    print("acc mod p: 0x%033x" % acc)
 
     return acc
 
@@ -112,7 +115,7 @@ def poly1305_mac(key, message):
         b = b2le(block)
         print("padded block %02d: " % i, end="")
         print_bytelist(block)
-        print("block word:       0x%033x" % b)
+        print("block word:  0x%033x" % b)
         acc = poly1305_update(acc, cr, b)
     print("")
 
