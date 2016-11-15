@@ -156,11 +156,11 @@ def poly1305_keygen_test():
     block = chacha_block(key, counter, nonce)
     print("Generated block bytes:")
     block_bytes = w32bl(block)
-    print_bytelist(block_bytes)
+    print_bytelist(0, block_bytes)
     print()
     p1305_key_bytes = block_bytes[0:32]
     print("Generated key bytes:")
-    print_bytelist(p1305_key_bytes)
+    print_bytelist(0, p1305_key_bytes)
     print()
 
 

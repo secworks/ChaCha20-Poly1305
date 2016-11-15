@@ -114,19 +114,19 @@ def poly1305_mac(key, message):
         block.append(0x01)
         b = b2le(block)
         print("padded block %02d: " % i, end="")
-        print_bytelist(block)
+        print_bytelist(17, block)
         print("block word:  0x%033x" % b)
         acc = poly1305_update(acc, cr, b)
     print("")
 
     # Generating the final tagword and convert to list of bytes.
     acc = acc + s
-    print("acc + s:     0x%033x" % acc)
+    print("acc + s:   0x%033x" % acc)
     tagword = acc & MAXVALUE_128_BITS
-    print("tagword:     0x%033x" % tagword)
+    print("tagword:   0x%033x" % tagword)
     tag = w2bl(16, tagword)
-    print("tag:         ", end="")
-    print_bytelist(tag)
+    print("tag:       ", end="")
+    print_bytelist(11, tag)
 
     return tag
 

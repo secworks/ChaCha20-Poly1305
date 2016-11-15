@@ -15,7 +15,7 @@
 # without modification, are permitted provided that the following
 # conditions are met:
 #
-# 1. Redistributions of source code must retain the above copyright
+# 1. Redistributions of source code must rettain the above copyright
 #    notice, this list of conditions and the following disclaimer.
 #
 # 2. Redistributions in binary form must reproduce the above copyright
@@ -52,10 +52,10 @@ VERBOSE = False
 #-------------------------------------------------------------------
 # print_bytelist()
 #-------------------------------------------------------------------
-def print_bytelist(bl):
+def print_bytelist(pad, bl):
     for i in range(len(bl)):
         if i > 0 and (i % 8 == 0):
-            print()
+            print("\n" + " " * pad, end="")
         print("0x%02x " % bl[i], end="")
     print()
 
