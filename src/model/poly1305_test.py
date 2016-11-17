@@ -121,6 +121,7 @@ def poly1305_mac(key, message):
 
     # Generating the final tagword and convert to list of bytes.
     acc = acc + s
+    print("All MAC updates done. Doing MAC finalization.")
     print("acc + s:   0x%033x" % acc)
     tagword = acc & MAXVALUE_128_BITS
     print("tagword:   0x%033x" % tagword)
