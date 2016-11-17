@@ -133,6 +133,9 @@ def poly1305_mac(key, message):
 
 
 #-------------------------------------------------------------------
+# test_clamp_r()
+#
+# Simple test clamping. Testvector from 2.5.2 in the RFC.
 #-------------------------------------------------------------------
 def test_clamp_r():
     rlist = [0x85, 0xd6, 0xbe, 0x78, 0x57, 0x55, 0x6d, 0x33,
