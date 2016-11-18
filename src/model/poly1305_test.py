@@ -164,28 +164,34 @@ def test_clamp_r():
 #-------------------------------------------------------------------
 def test_poly1305_update():
     print("*** Testing Poly1305 update.")
-    acc   = 0x00
-    r     = 0x0806d5400e52447c036d555408bed685
-
-    block1 = 0x6f4620636968706172676f7470797243
+    acc    = 0x00
+    r      = 0x0806d5400e52447c036d555408bed685
+    block1 = 0x16f4620636968706172676f7470797243
     acc1   = poly1305_update(acc, r, block1)
 
-    block2 = 0x6f7247206863726165736552206d7572
+    block2 = 0x16f7247206863726165736552206d7572
     acc2   = poly1305_update(acc1, r, block2)
 
-    block3 = 0x00000000000000000000000000007075
-    acc3   = poly1305_update(acc1, r, block3)
+    block3 = 0x000000000000000000000000000017075
+    acc3   = poly1305_update(acc2, r, block3)
 
     print("acc after block 1:  0x%033x" % acc1)
     print("acc after block 2:  0x%033x" % acc2)
     print("acc after block 3:  0x%033x" % acc3)
 
+    correct = True
     if (acc1 != 0x2c88c77849d64ae9147ddeb88e69c83fc):
         print("Expected acc1: 0x2c88c77849d64ae9147ddeb88e69c83fc")
+        correct = False
     if (acc2 != 0x2d8adaf23b0337fa7cccfb4ea344b30de):
         print("Expected acc2: 0x2d8adaf23b0337fa7cccfb4ea344b30de")
+        correct = False
     if (acc3 != 0x28d31b7caff946c77c8844335369d03a7):
-        print("Expected acc2: 0x28d31b7caff946c77c8844335369d03a7")
+        print("Expected acc3: 0x28d31b7caff946c77c8844335369d03a7")
+        correct = False
+    if (correct):
+        print("Accumulator correctly updated for all three blocks.")
+    print()
 
 
 #-------------------------------------------------------------------
@@ -228,7 +234,7 @@ def test_poly1305_mac():
 def main():
     print("Testing Poly1305")
     test_clamp_r()
-    # test_poly1305_update()
+    test_poly1305_update()
     test_poly1305_mac()
 
 
