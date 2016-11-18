@@ -68,7 +68,7 @@ module poly1305();
   //
   // Given a block, update the internal Poly1305 state.
   //----------------------------------------------------------------
-  task poly1305_update(input [127 : 0] block);
+  task poly1305_update(input [129 : 0] block);
     begin : poly1305_update
       acc_reg = acc_reg + block;
       acc_reg = acc_reg * r_reg;
@@ -116,17 +116,21 @@ module poly1305();
   //----------------------------------------------------------------
   task test_poly1305_update;
     begin : test_poly1305_update
-      reg [127 : 0] block;
+      reg [128 : 0] block;
 
       acc_reg = 130'h0;
       r_reg = 128'h0806d5400e52447c036d555408bed685;
-      block = 128'h6f4620636968706172676f7470797243;
+      block = 129'h16f4620636968706172676f7470797243;
       poly1305_update(block);
       $display("acc after block1: 0x%033x", acc_reg);
 
-      block = 128'h6f7247206863726165736552206d7572;
+      block = 129'h16f7247206863726165736552206d7572;
       poly1305_update(block);
       $display("acc after block2: 0x%033x", acc_reg);
+
+      block = 129'h000000000000000000000000000017075;
+      poly1305_update(block);
+      $display("acc after block3: 0x%033x", acc_reg);
     end
   endtask // test_poly1305_update
 
