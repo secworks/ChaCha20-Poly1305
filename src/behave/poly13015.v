@@ -70,9 +70,18 @@ module poly1305();
   //----------------------------------------------------------------
   task poly1305_update(input [129 : 0] block);
     begin : poly1305_update
+      reg [261 : 0] tmp;
+
+      $display("r:       0x%033x", r_reg);
+      $display("b:       0x%033x", block);
+      $display("acc:     0x%033x", acc_reg);
       acc_reg = acc_reg + block;
-      acc_reg = acc_reg * r_reg;
-      acc_reg = acc_reg % POLY1305;
+      $display("acc + b: 0x%033x", acc_reg);
+      tmp = acc_reg * r_reg;
+      $display("acc * r: 0x%066x", tmp);
+      acc_reg = tmp % POLY1305;
+      $display("acc mod p: 0x%033x", acc_reg);
+      $display("");
     end
   endtask // poly1305_init
 
