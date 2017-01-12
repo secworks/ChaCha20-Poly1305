@@ -161,7 +161,15 @@ def test_clamp_r():
 # Test modulus functionality.
 #-------------------------------------------------------------------
 def test_mod():
-    pass
+    a = 12323
+    b = 34
+    i = 1
+    prod = 0
+    while prod < a:
+        print("prod = %d, i = %d" % (prod, i))
+        prod = b * i
+        i += 1
+    print("rem: %d" % (a - b*(i - 2)))
 
 
 #-------------------------------------------------------------------
@@ -243,9 +251,9 @@ def test_poly1305_mac():
 def main():
     print("Testing Poly1305")
     test_mod()
-    test_clamp_r()
-    test_poly1305_update()
-    test_poly1305_mac()
+#    test_clamp_r()
+#    test_poly1305_update()
+#    test_poly1305_mac()
 
 
 #-------------------------------------------------------------------
