@@ -156,6 +156,15 @@ def test_clamp_r():
 
 
 #-------------------------------------------------------------------
+# test_mod()
+#
+# Test modulus functionality.
+#-------------------------------------------------------------------
+def test_mod():
+    pass
+
+
+#-------------------------------------------------------------------
 # test_poly1305_update()
 #
 # Test the poly1305_update function that calculates a new
@@ -233,6 +242,7 @@ def test_poly1305_mac():
 #-------------------------------------------------------------------
 def main():
     print("Testing Poly1305")
+    test_mod()
     test_clamp_r()
     test_poly1305_update()
     test_poly1305_mac()
