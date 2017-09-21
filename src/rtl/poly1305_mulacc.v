@@ -52,7 +52,6 @@ module poly1305_mulacc(
   //----------------------------------------------------------------
   reg [63 : 0] mulacc_res_reg;
   reg [63 : 0] mulacc_res_new;
-  reg          mulacc_res_we;
 
 
   //----------------------------------------------------------------
@@ -88,12 +87,12 @@ module poly1305_mulacc(
   always @*
     begin : mac_logic
       reg [63 : 0] mul_res;
-      reg [31 : 0] mux_addop;
+      reg [63 : 0] mux_addop;
 
       mul_res = opa * opb;
 
       if (init)
-        mux_addop = 32'h0;
+        mux_addop = 64'h0;
       else
         mux_addop = mulacc_res_reg;
 
