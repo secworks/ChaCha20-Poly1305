@@ -11,13 +11,17 @@ and is needed for example for the
 [TLS and DTLS cipher suites in RFC 7905](https://tools.ietf.org/html/rfc7905 "RFC 7905 - ChaCha20-Poly1305 Cipher Suites for Transport Layer Security (TLS)").
 
 
+## Status ##
+Not done.
+
+The ChaCha core and integration is done. The Poly1305 implementation is
+started, but is nowhere near completion. Right now it is modelling in
+Python and architecture design.
+
+
 ## Implementation ##
 The core is written in Verilog 2001 and is based around the
 [ChaCha core](https://github.com/secworks/chacha).
 
-
-## Status ##
-
-***(2016-06-23)***
-
-Core implementation started.
+The Poly1305 part of the core will (probably) have a processing cycle
+time matching the ChaCha core.
