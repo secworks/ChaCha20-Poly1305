@@ -253,7 +253,7 @@ def main():
     test_mod()
 #    test_clamp_r()
 #    test_poly1305_update()
-#    test_poly1305_mac()
+    test_poly1305_mac()
 
 
 #-------------------------------------------------------------------
