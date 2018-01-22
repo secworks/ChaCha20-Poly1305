@@ -79,6 +79,18 @@ module mulacc_test(
   reg [28 : 0] b54_reg;
   reg [28 : 0] b54_new;
 
+  reg [53 : 0] prim0_reg;
+  reg [53 : 0] prim0_new;
+  reg [53 : 0] prim1_reg;
+  reg [53 : 0] prim1_new;
+  reg [53 : 0] prim2_reg;
+  reg [53 : 0] prim2_new;
+  reg [53 : 0] prim3_reg;
+  reg [53 : 0] prim3_new;
+  reg [53 : 0] prim4_reg;
+  reg [53 : 0] prim4_new;
+
+
   //----------------------------------------------------------------
   // Wires.
   //----------------------------------------------------------------
@@ -102,11 +114,16 @@ module mulacc_test(
     begin : reg_update
       if (!reset_n)
         begin
-          b51_reg <= 29'h0;
-          b52_reg <= 29'h0;
-          b53_reg <= 29'h0;
-          b54_reg <= 29'h0;
-          p0_reg  <= 59'h0;
+          b51_reg   <= 29'h0;
+          b52_reg   <= 29'h0;
+          b53_reg   <= 29'h0;
+          b54_reg   <= 29'h0;
+          prim0_reg <= 54'h0;
+          prim1_reg <= 54'h0;
+          prim2_reg <= 54'h0;
+          prim3_reg <= 54'h0;
+          prim4_reg <= 54'h0;
+          p0_reg    <= 59'h0;
         end
       else
         begin
@@ -114,6 +131,12 @@ module mulacc_test(
           b52_reg <= b52_new;
           b53_reg <= b53_new;
           b54_reg <= b54_new;
+
+          prim0_reg <= prim0_new;
+          prim1_reg <= prim1_new;
+          prim2_reg <= prim2_new;
+          prim3_reg <= prim3_new;
+          prim4_reg <= prim4_new;
 
           p0_reg <= p0_new;
 
@@ -142,10 +165,16 @@ module mulacc_test(
       b53_new = {b_mem[3], 2'b00} + b_mem[3];
       b54_new = {b_mem[4], 2'b00} + b_mem[4];
 
-      // Big, naive implementation of of one p-element.
-      p0_new = a_mem[0] * b_mem[0] + a_mem[1] * b54_reg +
-               a_mem[2] * b53_reg + a_mem[3] * b52_reg  +
-               a_mem[4] * b51_reg;
+      // Perform multiplications.
+      prim0_new = a_mem[0] * b_mem[0];
+      prim1_new = a_mem[1] * b54_reg;
+      prim2_new = a_mem[2] * b53_reg;
+      prim3_new = a_mem[3] * b52_reg;
+      prim4_new = a_mem[4] * b51_reg;
+
+      // Peform final additions of products.
+      p0_new = prim0_reg + prim1_reg + prim2_reg +
+               prim3_reg + prim4_reg;
     end
 
 
