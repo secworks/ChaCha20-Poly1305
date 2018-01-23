@@ -160,10 +160,10 @@ module mulacc_test(
       reg [28 : 0] b54;
 
       // Fix the fixed mult by five operands.
-      b51_new = {b_mem[1], 2'b00} + b_mem[1];
-      b52_new = {b_mem[2], 2'b00} + b_mem[2];
-      b53_new = {b_mem[3], 2'b00} + b_mem[3];
-      b54_new = {b_mem[4], 2'b00} + b_mem[4];
+      b51_new = {b_mem[1], 2'b0} + b_mem[1];
+      b52_new = {b_mem[2], 2'b0} + b_mem[2];
+      b53_new = {b_mem[3], 2'b0} + b_mem[3];
+      b54_new = {b_mem[4], 2'b0} + b_mem[4];
 
       // Perform multiplications.
       prim0_new = a_mem[0] * b_mem[0];
