@@ -48,27 +48,29 @@ CORE_TB_SRC =../src/tb/tb_chacha20_poly1305_core.v
 TOP_TB_SRC =../src/tb/tb_chacha20_poly1305.v
 
 CC=iverilog
+CC_FLAGS= -Wall
+
 LINT=verilator
-LINTFLAGS =  --lint-only  -Wall -Wno-fatal -Wno-DECLFILENAME
+LINT_FLAGS = +1364-2001ext+ --lint-only  -Wall -Wno-fatal -Wno-DECLFILENAME
 
 
 all: top.sim chacha.sim qr.sim
 
 
 top.sim: $(TOP_TB_SRC) $(TOP_SRC)
-	$(CC) -o top.sim $(TOP_TB_SRC) $(TOP_SRC)
+	$(CC) $(CC_FLAGS) -o top.sim $(TOP_TB_SRC) $(TOP_SRC)
 
 
 core.sim: $(CORE_TB_SRC) $(CORE_SRC)
-	$(CC) -o core.sim $(CORE_TB_SRC) $(CORE_SRC)
+	$(CC) $(CC_FLAGS) -o core.sim $(CORE_TB_SRC) $(CORE_SRC)
 
 
 chacha.sim: $(CHACHA_CORE_TB_SRC) $(CHACHA_CORE_SRC)
-	$(CC) -o chacha.sim $(CHACHA_CORE_TB_SRC) $(CHACHA_CORE_SRC)
+	$(CC) $(CC_FLAGS) -o chacha.sim $(CHACHA_CORE_TB_SRC) $(CHACHA_CORE_SRC)
 
 
 qr.sim: $(CHACHA_QR_TB_SRC) $(CHACHA_QR_SRC)
-	$(CC) -o qr.sim $(CHACHA_QR_TB_SRC) $(CHACHA_QR_SRC)
+	$(CC) $(CC_FLAGS) -o qr.sim $(CHACHA_QR_TB_SRC) $(CHACHA_QR_SRC)
 
 
 sim-core: core.sim
@@ -88,7 +90,7 @@ sim-qr: qr.sim
 
 
 lint:  $(TOP_SRC)
-	$(LINT) $(LINTFLAGS) $(TOP_SRC)
+	$(LINT) $(LINT_FLAGS) $(TOP_SRC)
 
 
 
